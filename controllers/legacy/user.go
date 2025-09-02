@@ -23,7 +23,7 @@ func CreateUserFromLegacy(c *gin.Context) {
 
 	user := models.User{
 		UUID:         uuid.New().String(),
-		ID:           userLegacy.ID,
+		ID:           &userLegacy.ID,
 		Name:         userLegacy.Name,
 		Email:        userLegacy.Email,
 		Password:     nil,

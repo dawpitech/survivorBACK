@@ -6,5 +6,5 @@ type UserLegacy struct {
 	Role       string `json:"role"`
 	FounderID  *uint  `json:"founder_id"`
 	InvestorID *uint  `json:"investor_id"`
-	ID         *uint  `json:"id"`
+	ID         uint   `json:"id"`
 }
