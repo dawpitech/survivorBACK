@@ -38,6 +38,7 @@ func main() {
 
 	legacyRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
 	legacyRoutes.POST("/createUser", legacy.CreateUserFromLegacy)
+	legacyRoutes.POST("/createInvestor", legacy.CreateInvestorFromLegacy)
 
 	err = router.Run("0.0.0.0:24680")
 	if err != nil {
