@@ -7,6 +7,7 @@ import (
 	"proto/backendAPI/controllers/legacy"
 	"proto/backendAPI/initializers"
 	"proto/backendAPI/middlewares"
+	"proto/backendAPI/tasks"
 )
 
 type user struct {
@@ -44,7 +45,9 @@ func main() {
 	systemRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
 	systemRoutes.POST("/createUser", legacy.CreateUserFromLegacy)
 
-	err := router.Run("localhost:8080")
+	tasks.RunTasksInBackground()
+
+	err = router.Run("localhost:8080")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
