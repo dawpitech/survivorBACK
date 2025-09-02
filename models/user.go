@@ -4,8 +4,8 @@ type User struct {
 	UUID         string  `json:"uuid" gorm:"primary_key"`
 	ID           *uint   `json:"id"`
 	Name         string  `json:"name"`
-	Email        string  `json:"email" gorm:"unique"`
-	Password     string  `json:"password"`
+	Email        string  `json:"email" gorm:"unique;not null;default:null"`
+	Password     *string `json:"password"`
 	Role         string  `json:"role"`
 	FounderUUID  *string `json:"founder_uuid"`
 	FounderID    *uint   `json:"founder_id"`
@@ -25,6 +25,7 @@ type PublicUser struct {
 func (u User) GetPublicUser() PublicUser {
 	return PublicUser{
 		UUID:         u.UUID,
+		Name:         u.Name,
 		Email:        u.Email,
 		Role:         u.Role,
 		FounderUUID:  u.FounderUUID,

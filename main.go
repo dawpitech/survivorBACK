@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"proto/backendAPI/controllers"
+	"proto/backendAPI/controllers/legacy"
 	"proto/backendAPI/initializers"
 	"proto/backendAPI/middlewares"
 )
@@ -29,7 +30,13 @@ func main() {
 
 	router.POST("/auth/signup", controllers.CreateUser)
 	router.POST("/auth/login", controllers.LoginUser)
+
 	router.GET("/user/profile", middlewares.CheckAuth, controllers.GetUser)
+
+	systemRoutes := router.Group("/legacy/")
+
+	systemRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
+	systemRoutes.POST("/createUser", legacy.CreateUserFromLegacy)
 
 	err := router.Run("localhost:8080")
 	if err != nil {

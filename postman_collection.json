@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"example@example.com\",\n    \"password\": \"FranceDeveloppe\"\n}",
+							"raw": "{\n    \"email\": \"chloe.petit@outlook.com\",\n    \"password\": \"motdepasse\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -57,7 +57,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"dev@francedeveloppe.fr\",\n    \"password\": \"FranceDeveloppe\"\n}",
+							"raw": "{\n    \"email\": \"chloe.petit@outlook.com\",\n    \"password\": \"motdepasse\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -72,6 +72,38 @@
 							"path": [
 								"auth",
 								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Legacy",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"chloe.petit@outlook.com\",\n  \"name\": \"Chloé Petit\",\n  \"role\": \"founder\",\n  \"founder_id\": 24,\n  \"investor_id\": null,\n  \"id\": 51\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SURVIVOR_URL}}/legacy/createUser",
+							"host": [
+								"{{SURVIVOR_URL}}"
+							],
+							"path": [
+								"legacy",
+								"createUser"
 							]
 						}
 					},
@@ -104,14 +136,6 @@
 						"profile"
 					]
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "New Request",
-			"request": {
-				"method": "GET",
-				"header": []
 			},
 			"response": []
 		}
