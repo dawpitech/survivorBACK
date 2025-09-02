@@ -27,25 +27,25 @@ func init() {
 
 func main() {
 	fmt.Println("Now launching...")
-	var router = gin.Default()
 
+	tasks.RunTasksInBackground()
+
+	var router = gin.Default()
 	err := router.SetTrustedProxies(nil)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	router.POST("/auth/signup", controllers.CreateUser)
-	router.POST("/auth/login", controllers.LoginUser)
+	defaultRoutes := router.Group("/api")
+	systemRoutes := defaultRoutes.Group("/legacy/")
 
-	router.GET("/user/profile", middlewares.CheckAuth, controllers.GetUser)
-
-	systemRoutes := router.Group("/legacy/")
+	defaultRoutes.POST("/auth/signup", controllers.CreateUser)
+	defaultRoutes.POST("/auth/login", controllers.LoginUser)
+	defaultRoutes.GET("/user/profile", middlewares.CheckAuth, controllers.GetUser)
 
 	systemRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
 	systemRoutes.POST("/createUser", legacy.CreateUserFromLegacy)
-
-	tasks.RunTasksInBackground()
 
 	err = router.Run("0.0.0.0:24680")
 	if err != nil {
