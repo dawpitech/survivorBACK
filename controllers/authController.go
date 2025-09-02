@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"os"
@@ -22,7 +23,7 @@ func LoginUser(c *gin.Context) {
 	var userFound models.User
 	initializers.DB.Where("email=?", authInput.Email).Find(&userFound)
 
-	if userFound.ID == 0 {
+	if userFound.UUID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
 		return
 	}
@@ -33,8 +34,8 @@ func LoginUser(c *gin.Context) {
 	}
 
 	generateToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  userFound.ID,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"uuid": userFound.UUID,
+		"exp":  time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	token, err := generateToken.SignedString([]byte(os.Getenv("SECRET")))
@@ -61,7 +62,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	if userFound.ID != 0 {
+	if userFound.UUID != "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already used"})
 		return
 	}
@@ -73,6 +74,7 @@ func CreateUser(c *gin.Context) {
 	}
 
 	user := models.User{
+		UUID:     uuid.New().String(),
 		Email:    authInput.Email,
 		Password: string(passwordHash),
 	}

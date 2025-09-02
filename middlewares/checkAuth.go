@@ -55,13 +55,13 @@ func CheckAuth(c *gin.Context) {
 	}
 
 	var user models.User
-	if result := initializers.DB.Where("id=?", claims["id"]).Find(&user); result.Error != nil {
+	if result := initializers.DB.Where("uuid=?", claims["uuid"]).Find(&user); result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if user.ID == 0 {
+	if user.UUID == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Token expired"})
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
