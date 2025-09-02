@@ -47,7 +47,7 @@ func main() {
 
 	tasks.RunTasksInBackground()
 
-	err = router.Run("localhost:8080")
+	err = router.Run("0.0.0.0:24680")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
