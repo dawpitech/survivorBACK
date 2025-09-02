@@ -10,14 +10,6 @@ import (
 	"proto/backendAPI/tasks"
 )
 
-type user struct {
-	UserID     int32 `binding:"required"`
-	FounderID  int32
-	InvestorID int32
-	Name       string
-	Email      string
-}
-
 func init() {
 	fmt.Println("Initializing...")
 
