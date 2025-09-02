@@ -2,11 +2,11 @@ package models
 
 type Investor struct {
 	UUID            string  `json:"uuid" gorm:"primary_key"`
-	ID              *uint   `json:"id"`
+	ID              *uint   `json:"id" gorm:"unique"`
 	Name            string  `json:"name"`
 	LegalStatus     *string `json:"legal_status"`
 	Address         *string `json:"address"`
-	Email           string  `json:"email"`
+	Email           string  `json:"email" gorm:"unique;not null;default:null"`
 	Phone           *string `json:"phone"`
 	CreatedAt       *string `json:"created_at"`
 	Description     *string `json:"description"`
