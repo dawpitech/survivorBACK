@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . .
 RUN go build -o api .
 
-FROM alpine:latest
+FROM alpine:latest AS release
 WORKDIR /app
 COPY --from=builder /app/api .
 EXPOSE 24680
