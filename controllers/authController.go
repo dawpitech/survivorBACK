@@ -3,7 +3,6 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"os"
@@ -23,12 +22,12 @@ func LoginUser(c *gin.Context) {
 	var userFound models.User
 	initializers.DB.Where("email=?", authInput.Email).Find(&userFound)
 
-	if userFound.UUID == "" {
+	if userFound.UUID == "" || userFound.Password == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(userFound.Password), []byte(authInput.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(*userFound.Password), []byte(authInput.Password)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid password"})
 		return
 	}
@@ -62,7 +61,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	if userFound.UUID != "" {
+	if userFound.Password != nil && userFound.UUID != "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already used"})
 		return
 	}
@@ -73,18 +72,30 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	user := models.User{
-		UUID:     uuid.New().String(),
-		Email:    authInput.Email,
-		Password: string(passwordHash),
-	}
-
-	if createResult := initializers.DB.Create(&user); createResult.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+	password := string(passwordHash)
+	if userFound.Password == nil && userFound.UUID != "" {
+		if updateResult := initializers.DB.Model(&userFound).Update("password", password); updateResult.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"user": userFound.GetPublicUser()})
+	} else {
+		// Temporarily disable creation of new account
+		c.JSON(http.StatusForbidden, gin.H{"error": "Account creation is disabled."})
 		return
+		/*
+			user := models.User{
+				UUID:     uuid.New().String(),
+				Email:    authInput.Email,
+				Password: &password,
+			}
+			if createResult := initializers.DB.Create(&user); createResult.Error != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+				return
+			}
+			c.JSON(http.StatusCreated, gin.H{"user": user.GetPublicUser()})
+		*/
 	}
-
-	c.JSON(http.StatusCreated, gin.H{"data": user.GetPublicUser()})
 }
 
 func GetUser(c *gin.Context) {
