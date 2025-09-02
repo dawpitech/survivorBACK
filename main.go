@@ -28,6 +28,12 @@ func main() {
 	fmt.Println("Now launching...")
 	var router = gin.Default()
 
+	err := router.SetTrustedProxies(nil)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
 	router.POST("/auth/signup", controllers.CreateUser)
 	router.POST("/auth/login", controllers.LoginUser)
 
