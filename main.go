@@ -38,14 +38,14 @@ func main() {
 	}
 
 	defaultRoutes := router.Group("/api")
-	systemRoutes := defaultRoutes.Group("/legacy/")
+	legacyRoutes := defaultRoutes.Group("/legacy/")
 
 	defaultRoutes.POST("/auth/signup", controllers.CreateUser)
 	defaultRoutes.POST("/auth/login", controllers.LoginUser)
 	defaultRoutes.GET("/user/profile", middlewares.CheckAuth, controllers.GetUser)
 
-	systemRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
-	systemRoutes.POST("/createUser", legacy.CreateUserFromLegacy)
+	legacyRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
+	legacyRoutes.POST("/createUser", legacy.CreateUserFromLegacy)
 
 	err = router.Run("0.0.0.0:24680")
 	if err != nil {
