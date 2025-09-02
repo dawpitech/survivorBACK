@@ -34,16 +34,6 @@ func CreateUserFromLegacy(c *gin.Context) {
 		InvestorID:   userLegacy.InvestorID,
 	}
 
-	if user.FounderID != nil {
-		founderUUID := uuid.New().String()
-		user.FounderUUID = &founderUUID
-	}
-
-	if user.InvestorID != nil {
-		investorUUID := uuid.New().String()
-		user.InvestorUUID = &investorUUID
-	}
-
 	if createResult := initializers.DB.Create(&user); createResult.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
