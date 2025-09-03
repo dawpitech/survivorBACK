@@ -4,6 +4,8 @@ import (
 	"FranceDeveloppe/JEB-backend/initializers"
 	"FranceDeveloppe/JEB-backend/models"
 	"fmt"
+	"os"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
