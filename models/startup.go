@@ -1,14 +1,15 @@
 package models
 
 type StartupList struct {
-	ID          uint `json:"id"`
-	Name        string `json:"name"`
+	UUID        string  `json:"uuid" gorm:"primary_key"`
+	ID          *uint   `json:"id" gorm:"unique"`
+	Name        string  `json:"name"`
 	LegalStatus *string `json:"legal_status"`
-	Address     *string	`json:"address"`
-	Email       string `json:"email"`
+	Address     *string `json:"address"`
+	Email       string  `json:"email" gorm:"unique;not null;default:null"`
 	Phone       *string `json:"phone"`
 	Sector      *string `json:"sector"`
-	Maturity    *string	`json:"maturity"`
+	Maturity    *string `json:"maturity"`
 }
 
 type StartupDetail struct {
@@ -20,8 +21,10 @@ type StartupDetail struct {
 	ProjectStatus  *string `json:"project_status"`
 	Needs          *string `json:"needs"`
 	Founders       []struct {
-		Name      string `json:"name"`
-		ID        uint `json:"id"`
-		StartupID uint `json:"startup_id"`
+		Name        string `json:"name"`
+		ID          *uint  `json:"id"`
+		UUID        string `json:"uuid"`
+		StartupID   *uint  `json:"startup_id"`
+		StartupUUID string `json:"startup_uuid"`
 	} `json:"founders"`
 }
