@@ -23,12 +23,12 @@ func LoginUser(c *gin.Context) {
 	initializers.DB.Where("email=?", authInput.Email).Find(&userFound)
 
 	if userFound.UUID == "" || userFound.Password == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(*userFound.Password), []byte(authInput.Password)); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid password"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
