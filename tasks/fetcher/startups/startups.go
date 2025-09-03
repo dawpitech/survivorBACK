@@ -48,7 +48,7 @@ func getStartups(endpoint *url.URL) ([]legacy.StartupListLegacy, error) {
 }
 
 func postStartupList(startups []legacy.StartupListLegacy) error {
-	for _, startupLegacy := range(startups) {
+	for _, startupLegacy := range startups {
 		startup := models.StartupList{
 			ID:          &startupLegacy.ID,
 			Name:        startupLegacy.Name,

@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"net/http"
-	"fmt"
-	"log"
-	"io"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
 )
 
 func SendRequest(codeBlock string, req *http.Request, data any, fromJson bool) (any, error) {
@@ -18,7 +18,7 @@ func SendRequest(codeBlock string, req *http.Request, data any, fromJson bool) (
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200{
+	if resp.StatusCode != 200 {
 		log.Printf("Error in status code for %s: %d", codeBlock, resp.StatusCode)
 		return data, fmt.Errorf("Unexpected status code: %d", resp.StatusCode)
 	}
@@ -38,5 +38,3 @@ func SendRequest(codeBlock string, req *http.Request, data any, fromJson bool) (
 	}
 	return string(body), nil
 }
-
-

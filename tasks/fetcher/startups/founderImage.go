@@ -47,7 +47,7 @@ func getFounderImage(entrypoint *url.URL) (string, error) {
 
 func UpdateFounderImage(startupsId uint64, founderId uint64) (string, error) {
 	var err error = nil
-	var founderImage string 
+	var founderImage string
 
 	endpoint, err := setupFounderImageQuery(startupsId, founderId)
 	if err != nil {
