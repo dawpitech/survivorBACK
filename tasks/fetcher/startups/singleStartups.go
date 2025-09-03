@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"os"
 
+	"FranceDeveloppe/JEB-backend/initializers"
+	"FranceDeveloppe/JEB-backend/models"
 	"FranceDeveloppe/JEB-backend/models/legacy"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/utils"
 )
@@ -44,6 +46,40 @@ func getSingleStartup(entrypoint *url.URL) (legacy.StartupDetailLegacy, error) {
 	return startup, nil
 }
 
+func postStartupDetail(startupLegacy legacy.StartupDetailLegacy) error {
+	var founders []models.Founder
+	for _, founderLegacy := range startupLegacy.Founders {
+		founder := models.Founder{
+			ID:        &founderLegacy.ID,
+			Name:      founderLegacy.Name,
+			StartupID: &founderLegacy.StartupID,
+		}
+		founders = append(founders, founder)
+	}
+
+	startup := models.StartupDetail{
+		StartupList: models.StartupList{
+			ID:          &startupLegacy.ID,
+			Name:        startupLegacy.Name,
+			LegalStatus: startupLegacy.LegalStatus,
+			Address:     startupLegacy.Address,
+			Email:       startupLegacy.Email,
+			Phone:       startupLegacy.Phone,
+			Sector:      startupLegacy.Sector,
+			Maturity:    startupLegacy.Maturity,
+		},
+		CreatedAt:      startupLegacy.CreatedAt,
+		Description:    startupLegacy.Description,
+		WebsiteUrl:     startupLegacy.WebsiteUrl,
+		SocialMediaURL: startupLegacy.SocialMediaURL,
+		ProjectStatus:  startupLegacy.ProjectStatus,
+		Needs:          startupLegacy.Needs,
+		Founders:       founders,
+	}
+	initializers.DB.Create(&startup)
+	return nil
+}
+
 func UpdateSingleStartups(startupsId uint64) (legacy.StartupDetailLegacy, error) {
 	var err error = nil
 	startup := legacy.StartupDetailLegacy{}
@@ -54,6 +90,11 @@ func UpdateSingleStartups(startupsId uint64) (legacy.StartupDetailLegacy, error)
 	}
 
 	startup, err = getSingleStartup(endpoint)
+	if err != nil {
+		return startup, err
+	}
+
+	err = postStartupDetail(startup)
 	if err != nil {
 		return startup, err
 	}

@@ -49,7 +49,16 @@ func getStartups(endpoint *url.URL) ([]legacy.StartupListLegacy, error) {
 
 func postStartupList(startups []legacy.StartupListLegacy) error {
 	for _, startupLegacy := range(startups) {
-		startup := models.StartupList(startupLegacy)
+		startup := models.StartupList{
+			ID:          &startupLegacy.ID,
+			Name:        startupLegacy.Name,
+			LegalStatus: startupLegacy.LegalStatus,
+			Address:     startupLegacy.Address,
+			Email:       startupLegacy.Email,
+			Phone:       startupLegacy.Phone,
+			Sector:      startupLegacy.Sector,
+			Maturity:    startupLegacy.Maturity,
+		}
 		initializers.DB.Create(startup)
 	}
 
