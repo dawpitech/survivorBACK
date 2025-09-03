@@ -15,7 +15,12 @@ func init() {
 }
 
 func main() {
-	err := initializers.DB.AutoMigrate(&models.User{}, &models.Investor{})
+	err := initializers.DB.AutoMigrate(
+		&models.User{},
+		&models.Investor{},
+		&models.StartupDetail{},
+		&models.Founder{},
+	)
 	if err != nil {
 		fmt.Println(err.Error())
 		return

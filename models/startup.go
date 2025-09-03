@@ -14,17 +14,11 @@ type StartupList struct {
 
 type StartupDetail struct {
 	StartupList
-	CreatedAt      *string `json:"created_at"`
-	Description    *string `json:"description"`
-	WebsiteUrl     *string `json:"website_url"`
-	SocialMediaURL *string `json:"social_media_url"`
-	ProjectStatus  *string `json:"project_status"`
-	Needs          *string `json:"needs"`
-	Founders       []struct {
-		Name        string `json:"name"`
-		ID          *uint  `json:"id"`
-		UUID        string `json:"uuid"`
-		StartupID   *uint  `json:"startup_id"`
-		StartupUUID string `json:"startup_uuid"`
-	} `json:"founders"`
+	CreatedAt      *string   `json:"created_at"`
+	Description    *string   `json:"description"`
+	WebsiteUrl     *string   `json:"website_url"`
+	SocialMediaURL *string   `json:"social_media_url"`
+	ProjectStatus  *string   `json:"project_status"`
+	Needs          *string   `json:"needs"`
+	Founders       []Founder `json:"founders" gorm:"foreignKey:StartupUUID;references:UUID"`
 }
