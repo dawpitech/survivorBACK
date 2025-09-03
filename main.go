@@ -38,9 +38,9 @@ func main() {
 	// User management routes
 	defaultRoutes.GET("/users", controllers.GetAllUsers)
 	defaultRoutes.PUT("/users", controllers.CreateNewUser)
-
-	// TODO: legacy will be removed
-	defaultRoutes.GET("/user/profile", middlewares.CheckAuth, controllers.GetUser)
+	defaultRoutes.GET("/user/:uuid", controllers.GetUser)
+	defaultRoutes.DELETE("/user/:uuid", controllers.DeleteUser)
+	defaultRoutes.PATCH("/user/:uuid", controllers.UpdateUser)
 
 	// TODO/ all legacy Routes will be removed
 	legacyRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
