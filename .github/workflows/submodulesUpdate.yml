@@ -23,7 +23,9 @@ jobs:
           cache: 'true'
 
       - name: Compile
-        run: go build
+        # -buildvcs is to prevent go to use VCS stamping
+        # (VCS stamping will not work on a shallow copy)
+        run: go build -buildvcs=false
 
   trigger-submodules-update:
     runs-on: ubuntu-latest
