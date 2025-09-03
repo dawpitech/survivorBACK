@@ -1,4 +1,4 @@
-package models
+package legacy
 
 type InvestorLegacy struct {
 	ID              uint    `json:"id"`

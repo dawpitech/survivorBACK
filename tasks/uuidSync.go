@@ -1,9 +1,9 @@
 package tasks
 
 import (
+	"FranceDeveloppe/JEB-backend/initializers"
+	"FranceDeveloppe/JEB-backend/models"
 	"fmt"
-	"proto/backendAPI/initializers"
-	"proto/backendAPI/models"
 )
 
 func syncInvestorUUIDs(user models.User) {

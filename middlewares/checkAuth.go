@@ -1,13 +1,13 @@
 package middlewares
 
 import (
+	"FranceDeveloppe/JEB-backend/initializers"
+	"FranceDeveloppe/JEB-backend/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"os"
-	"proto/backendAPI/initializers"
-	"proto/backendAPI/models"
 	"strings"
 	"time"
 )

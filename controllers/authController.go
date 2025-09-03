@@ -1,13 +1,13 @@
 package controllers
 
 import (
+	"FranceDeveloppe/JEB-backend/initializers"
+	"FranceDeveloppe/JEB-backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"os"
-	"proto/backendAPI/initializers"
-	"proto/backendAPI/models"
 	"time"
 )
 

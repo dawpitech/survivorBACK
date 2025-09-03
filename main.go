@@ -1,13 +1,12 @@
 package main
 
 import (
+	"FranceDeveloppe/JEB-backend/controllers"
+	"FranceDeveloppe/JEB-backend/initializers"
+	"FranceDeveloppe/JEB-backend/middlewares"
+	"FranceDeveloppe/JEB-backend/tasks"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"proto/backendAPI/controllers"
-	"proto/backendAPI/controllers/legacy"
-	"proto/backendAPI/initializers"
-	"proto/backendAPI/middlewares"
-	"proto/backendAPI/tasks"
 )
 
 func init() {
@@ -37,8 +36,8 @@ func main() {
 	defaultRoutes.GET("/user/profile", middlewares.CheckAuth, controllers.GetUser)
 
 	legacyRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
-	legacyRoutes.POST("/createUser", legacy.CreateUserFromLegacy)
-	legacyRoutes.POST("/createInvestor", legacy.CreateInvestorFromLegacy)
+	legacyRoutes.POST("/createUser", controllers.CreateUserFromLegacy)
+	legacyRoutes.POST("/createInvestor", controllers.CreateInvestorFromLegacy)
 
 	err = router.Run("0.0.0.0:24680")
 	if err != nil {

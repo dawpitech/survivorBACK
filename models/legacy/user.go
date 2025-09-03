@@ -1,4 +1,4 @@
-package models
+package legacy
 
 type UserLegacy struct {
 	Email      string `json:"email"`
