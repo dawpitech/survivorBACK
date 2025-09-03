@@ -28,7 +28,7 @@ func main() {
 
 	if os.Getenv("GIN_MODE") == "debug" {
 		fmt.Println("Warning: running migration in 'debug' mode, dev credentials will be available.")
-		initializers.DB.Create(&models.User{
+		initializers.DB.Save(&models.User{
 			UUID:         "99999999-9999-9999-9999-999999999999",
 			ID:           nil,
 			Name:         "Dev Local Admin",
