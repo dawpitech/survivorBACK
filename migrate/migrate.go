@@ -1,11 +1,12 @@
 package main
 
 import (
+	"FranceDeveloppe/JEB-backend/initializers"
+	"FranceDeveloppe/JEB-backend/models"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"os"
-	"proto/backendAPI/initializers"
-	"proto/backendAPI/models"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func init() {

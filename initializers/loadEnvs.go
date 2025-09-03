@@ -1,13 +1,26 @@
 package initializers
 
 import (
-	"github.com/joho/godotenv"
 	"log"
+	"os"
+
+	"github.com/joho/godotenv"
 )
+
+func checkEnv(key string) {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("%s empty in env", key)
+	}
+}
 
 func LoadEnvs() {
 	err := godotenv.Load()
 	if err == nil {
 		log.Print("Using .env file")
 	}
+	checkEnv("API_URL")
+	checkEnv("API_KEY")
+	checkEnv("JWT_MASTER_SECRET")
+	checkEnv("DB_URL")
 }

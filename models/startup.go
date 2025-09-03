@@ -1,6 +1,6 @@
-package legacy
+package models
 
-type StartupListLegacy struct {
+type StartupList struct {
 	ID          uint `json:"id"`
 	Name        string `json:"name"`
 	LegalStatus *string `json:"legal_status"`
@@ -11,8 +11,8 @@ type StartupListLegacy struct {
 	Maturity    *string	`json:"maturity"`
 }
 
-type StartupDetailLegacy struct {
-	StartupListLegacy
+type StartupDetail struct {
+	StartupList
 	CreatedAt      *string `json:"created_at"`
 	Description    *string `json:"description"`
 	WebsiteUrl     *string `json:"website_url"`

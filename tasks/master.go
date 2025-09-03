@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"FranceDeveloppe/JEB-backend/tasks/fetcher"
 	"time"
 )
 
@@ -12,6 +13,7 @@ func RunTasksInBackground() {
 			select {
 			case <-ticker.C:
 				SyncUUIDs()
+				fetcher.UpdateData()
 			}
 		}
 	}()
