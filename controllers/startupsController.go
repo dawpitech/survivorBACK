@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
+	"time"
 )
 
 func GetAllStartups(c *gin.Context) {
@@ -53,6 +54,7 @@ func CreateNewStartup(c *gin.Context) {
 		return
 	}
 
+	currentDate := time.Now().Format("2006-01-02")
 	startup := models.StartupDetail{
 		StartupList: models.StartupList{
 			UUID:        uuid.New().String(),
@@ -65,7 +67,7 @@ func CreateNewStartup(c *gin.Context) {
 			Sector:      nil,
 			Maturity:    nil,
 		},
-		CreatedAt:      nil,
+		CreatedAt:      &currentDate,
 		Description:    nil,
 		WebsiteUrl:     nil,
 		SocialMediaURL: nil,
