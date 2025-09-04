@@ -25,10 +25,7 @@ func updateStartups() {
 			}
 
 			for _, founder := range startupDetail.Founders {
-				_, err = startups.UpdateFounderImage(uint64(*startup.ID), uint64(founder.ID))
-				if err != nil {
-					log.Println("Unable to update db for founder image: ", err)
-				}
+				startups.UpdateFounderImage(uint64(*startup.ID), uint64(founder.ID))
 			}
 		}
 		startupList, err = startups.UpdateStartupList(uint64(startIndex), uint64(nbToFetch))
@@ -37,7 +34,14 @@ func updateStartups() {
 }
 
 func updateUsers() {
-	user.UpdateUsers()
+	_, err := user.UpdateUsers()
+	if err != nil {
+		log.Println("Unable to update db for user: ", err)
+		return
+	}
+	// for _, singleUser := range(userList) {
+	// 	user.UpdateUserImage(uint64(singleUser.ID))
+	// }
 }
 
 func UpdateData() {
