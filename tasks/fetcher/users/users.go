@@ -41,15 +41,15 @@ func getUsers(endpoint *url.URL) ([]legacy.UserLegacy, error) {
 }
 
 func postUser(userList []legacy.UserLegacy) error {
-	for _, userLegacy := range(userList) {
+	for _, userLegacy := range userList {
 		user := models.User{
-			UUID: uuid.New().String(),
-			Email: userLegacy.Email,
-			Name: userLegacy.Name,
-			Role: userLegacy.Role,
-			FounderID: userLegacy.FounderID,
+			UUID:       uuid.New().String(),
+			ID:         &userLegacy.ID,
+			Email:      userLegacy.Email,
+			Name:       userLegacy.Name,
+			Role:       userLegacy.Role,
+			FounderID:  userLegacy.FounderID,
 			InvestorID: userLegacy.InvestorID,
-			ID: &userLegacy.ID,
 		}
 		var counter int64
 		initializers.DB.Table("users").Where("id=?", *user.ID).Count(&counter)

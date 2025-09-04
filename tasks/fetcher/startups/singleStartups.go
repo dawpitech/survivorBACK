@@ -55,7 +55,7 @@ func postStartupDetail(startupLegacy legacy.StartupDetailLegacy) error {
 			UUID:      uuid.New().String(),
 			ID:        &founderLegacy.ID,
 			Name:      founderLegacy.Name,
-			StartupID: &founderLegacy.StartupID,
+			StartupID: founderLegacy.StartupID,
 		}
 		founders = append(founders, founder)
 	}

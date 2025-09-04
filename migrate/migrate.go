@@ -21,6 +21,7 @@ func main() {
 		&models.StartupDetail{},
 		&models.Founder{},
 		&models.Partner{},
+		&models.NewsDetails{},
 	)
 	if err != nil {
 		fmt.Println(err.Error())

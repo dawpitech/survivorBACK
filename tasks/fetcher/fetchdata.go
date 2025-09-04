@@ -1,7 +1,8 @@
 package fetcher
 
 import (
-	investor "FranceDeveloppe/JEB-backend/tasks/fetcher/investors"
+	"FranceDeveloppe/JEB-backend/tasks/fetcher/investors"
+	"FranceDeveloppe/JEB-backend/tasks/fetcher/news"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/partners"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/startups"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/users"
@@ -76,9 +77,25 @@ func updateUsers() {
 	// }
 }
 
+func updateNews() {
+	startIndex := 0
+	nbToFetch := 10
+	newsList, err := news.UpdateNewsList(uint64(startIndex), uint64(nbToFetch))
+
+	for newsList != nil {
+		startIndex += nbToFetch
+		if err != nil {
+			log.Println("Unable to update db for news: ", err)
+			continue
+		}
+		newsList, err = news.UpdateNewsList(uint64(startIndex), uint64(nbToFetch))
+	}
+}
+
 func UpdateData() {
 	updateStartups()
 	updateInvestors()
 	updatePartners()
+	updateNews()
 	updateUsers()
 }
