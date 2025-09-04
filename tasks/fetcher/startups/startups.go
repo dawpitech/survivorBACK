@@ -13,6 +13,8 @@ import (
 	"FranceDeveloppe/JEB-backend/models"
 	"FranceDeveloppe/JEB-backend/models/legacy"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/utils"
+
+	"github.com/google/uuid"
 )
 
 func setupStartupsQuery(skip uint64, limit uint64) (*url.URL, error) {
@@ -50,6 +52,7 @@ func getStartups(endpoint *url.URL) ([]legacy.StartupListLegacy, error) {
 func postStartupList(startups []legacy.StartupListLegacy) error {
 	for _, startupLegacy := range startups {
 		startup := models.StartupList{
+			UUID:        uuid.New().String(),
 			ID:          &startupLegacy.ID,
 			Name:        startupLegacy.Name,
 			LegalStatus: startupLegacy.LegalStatus,
@@ -65,7 +68,7 @@ func postStartupList(startups []legacy.StartupListLegacy) error {
 	return nil
 }
 
-func UpdateStartup(skip uint64, limit uint64) ([]legacy.StartupListLegacy, error) {
+func UpdateStartupList(skip uint64, limit uint64) ([]legacy.StartupListLegacy, error) {
 	var err error = nil
 
 	endpoint, err := setupStartupsQuery(skip, limit)

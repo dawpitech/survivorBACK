@@ -5,8 +5,8 @@ import (
 	"log"
 )
 
-func UpdateData() {
-	startupList, err := startups.UpdateStartup(0, 10)
+func updateStartups() {
+	startupList, err := startups.UpdateStartupList(0, 10)
 	if err != nil {
 		log.Println("Unable to update db for startup: ", err)
 	}
@@ -25,5 +25,12 @@ func UpdateData() {
 			}
 		}
 	}
+}
 
+func updateUsers() {
+}
+
+func UpdateData() {
+	updateStartups()
+	updateUsers()
 }
