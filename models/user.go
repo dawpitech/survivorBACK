@@ -16,6 +16,13 @@ type User struct {
 	InvestorUUID *string   `json:"investor_uuid"`
 	InvestorID   *uint     `json:"investor_id"` // legacy
 	Investor     *Investor `json:"investor" gorm:"foreignKey:InvestorUUID;references:UUID"`
+
+	UserPicture *UserPicture `json:"user_picture" gorm:"foreignKey:UserUUID;references:UUID"`
+}
+
+type UserPicture struct {
+	UserUUID string `json:"user_uuid" gorm:"type:uuid;primary_key"`
+	Picture  []byte `json:"picture" gorm:"type:bytea"`
 }
 
 type PublicUser struct {
