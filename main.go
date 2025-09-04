@@ -46,6 +46,13 @@ func main() {
 	defaultRoutes.DELETE("/user/:uuid", controllers.DeleteUser)
 	defaultRoutes.PATCH("/user/:uuid", controllers.UpdateUser)
 
+	// Startup management routes
+	defaultRoutes.GET("/startups", controllers.GetAllStartups)
+	defaultRoutes.PUT("/startups", controllers.CreateNewStartup)
+	defaultRoutes.GET("/startup/:uuid", controllers.GetStartup)
+	defaultRoutes.DELETE("/startup/:uuid", controllers.DeleteStartup)
+	defaultRoutes.PATCH("/startup/:uuid", controllers.UpdateStartup)
+
 	// TODO/ all legacy Routes will be removed
 	legacyRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
 	//legacyRoutes.POST("/createUser", controllers.CreateUserFromLegacy)
