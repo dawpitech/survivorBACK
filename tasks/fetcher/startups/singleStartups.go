@@ -88,9 +88,9 @@ func postStartupDetail(startupLegacy legacy.StartupDetailLegacy) error {
 	}
 
 	for _, founder := range startup.Founders {
-		var existingFounder models.Founder
-		result := initializers.DB.Where("id = ?", *founder.ID).First(&existingFounder)
-		if result.Error != nil {
+		var counter int64
+		initializers.DB.Table("founders").Where("id=?", *founder.ID).Count(&counter)
+		if counter == 0 {
 			initializers.DB.Create(&founder)
 		}
 	}

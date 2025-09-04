@@ -65,9 +65,9 @@ func postStartupList(startups []legacy.StartupListLegacy) []models.StartupList {
 				Maturity:    startupLegacy.Maturity,
 			},
 		}
-		var existringStartup models.StartupDetail
-		result := initializers.DB.Where("id=?", *startup.ID).First(&existringStartup)
-		if result.Error != nil {
+		var counter int64
+		initializers.DB.Table("startup_details").Where("id=?", *startup.ID).Count(&counter)
+		if counter == 0 {
 			initializers.DB.Create(&startup)
 		}
 		startupsList = append(startupsList, startup.StartupList)
