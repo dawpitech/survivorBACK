@@ -62,7 +62,6 @@ func postStartupDetail(startupLegacy legacy.StartupDetailLegacy) error {
 
 	startup := models.StartupDetail{
 		StartupList: models.StartupList{
-			UUID:        uuid.New().String(),
 			ID:          &startupLegacy.ID,
 			Name:        startupLegacy.Name,
 			LegalStatus: startupLegacy.LegalStatus,
@@ -80,7 +79,22 @@ func postStartupDetail(startupLegacy legacy.StartupDetailLegacy) error {
 		Needs:          startupLegacy.Needs,
 		Founders:       founders,
 	}
-	initializers.DB.Create(&startup)
+	var startupUUID string
+	initializers.DB.Table("startup_details").Select("uuid").Where("id=?", *startup.ID).Limit(1).Find(&startupUUID)
+	startup.UUID = startupUUID
+
+	for i := range startup.Founders {
+		startup.Founders[i].StartupUUID = startupUUID
+	}
+
+	for _, founder := range startup.Founders {
+		var existingFounder models.Founder
+		result := initializers.DB.Where("id = ?", *founder.ID).First(&existingFounder)
+		if result.Error != nil {
+			initializers.DB.Create(&founder)
+		}
+	}
+	initializers.DB.Where("id=?", *startup.ID).Omit("Founders").Save(&startup)
 	return nil
 }
 
@@ -102,7 +116,6 @@ func UpdateSingleStartups(startupsId uint64) (legacy.StartupDetailLegacy, error)
 	if err != nil {
 		return startup, err
 	}
-	log.Println("Startup info: ", startup)
 
 	return startup, nil
 }

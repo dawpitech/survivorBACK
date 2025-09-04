@@ -71,6 +71,5 @@ func UpdateUsers() ([]legacy.UserLegacy, error) {
 	if err != nil {
 		return users, err
 	}
-	log.Println("Users: ", users)
 	return users, err
 }

@@ -49,26 +49,34 @@ func getStartups(endpoint *url.URL) ([]legacy.StartupListLegacy, error) {
 	return startups, nil
 }
 
-func postStartupList(startups []legacy.StartupListLegacy) error {
+func postStartupList(startups []legacy.StartupListLegacy) []models.StartupList {
+	var startupsList []models.StartupList
 	for _, startupLegacy := range startups {
-		startup := models.StartupList{
-			UUID:        uuid.New().String(),
-			ID:          &startupLegacy.ID,
-			Name:        startupLegacy.Name,
-			LegalStatus: startupLegacy.LegalStatus,
-			Address:     startupLegacy.Address,
-			Email:       startupLegacy.Email,
-			Phone:       startupLegacy.Phone,
-			Sector:      startupLegacy.Sector,
-			Maturity:    startupLegacy.Maturity,
+		startup := models.StartupDetail{
+			StartupList: models.StartupList{
+				UUID:        uuid.New().String(),
+				ID:          &startupLegacy.ID,
+				Name:        startupLegacy.Name,
+				LegalStatus: startupLegacy.LegalStatus,
+				Address:     startupLegacy.Address,
+				Email:       startupLegacy.Email,
+				Phone:       startupLegacy.Phone,
+				Sector:      startupLegacy.Sector,
+				Maturity:    startupLegacy.Maturity,
+			},
 		}
-		initializers.DB.Create(startup)
+		var existringStartup models.StartupDetail
+		result := initializers.DB.Where("id=?", *startup.ID).First(&existringStartup)
+		if result.Error != nil {
+			initializers.DB.Create(&startup)
+		}
+		startupsList = append(startupsList, startup.StartupList)
 	}
 
-	return nil
+	return startupsList
 }
 
-func UpdateStartupList(skip uint64, limit uint64) ([]legacy.StartupListLegacy, error) {
+func UpdateStartupList(skip uint64, limit uint64) ([]models.StartupList, error) {
 	var err error = nil
 
 	endpoint, err := setupStartupsQuery(skip, limit)
@@ -76,15 +84,11 @@ func UpdateStartupList(skip uint64, limit uint64) ([]legacy.StartupListLegacy, e
 		return nil, err
 	}
 
-	startupList, err := getStartups(endpoint)
+	startupListLegacy, err := getStartups(endpoint)
 	if err != nil {
-		return startupList, err
+		return nil, err
 	}
 
-	err = postStartupList(startupList)
-	if err != nil {
-		return startupList, err
-	}
-	log.Println("Startups: ", startupList)
+	startupList := postStartupList(startupListLegacy)
 	return startupList, err
 }
