@@ -19,8 +19,8 @@ func LoadEnvs() {
 	if err == nil {
 		log.Print("Using .env file")
 	}
-	checkEnv("API_URL")
-	checkEnv("API_KEY")
-	checkEnv("JWT_MASTER_SECRET")
-	checkEnv("DB_URL")
+	//checkEnv("API_URL")
+	//checkEnv("API_KEY")
+	//checkEnv("JWT_MASTER_SECRET")
+	//checkEnv("DB_URL")
 }
