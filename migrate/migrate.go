@@ -20,6 +20,7 @@ func main() {
 		&models.Investor{},
 		&models.StartupDetail{},
 		&models.Founder{},
+		&models.Partner{},
 	)
 	if err != nil {
 		fmt.Println(err.Error())

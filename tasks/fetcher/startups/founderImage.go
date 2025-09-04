@@ -59,6 +59,5 @@ func UpdateFounderImage(startupsId uint64, founderId uint64) (string, error) {
 		return founderImage, err
 	}
 
-	// log.Println("Founder image: ", founderImage)
 	return founderImage, nil
 }

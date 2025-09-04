@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	investor "FranceDeveloppe/JEB-backend/tasks/fetcher/investors"
+	"FranceDeveloppe/JEB-backend/tasks/fetcher/partners"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/startups"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/users"
 	"log"
@@ -49,6 +50,21 @@ func updateInvestors() {
 	}
 }
 
+func updatePartners() {
+	startIndex := 0
+	nbToFetch := 10
+	partnerList, err := partners.UpdatePartners(uint64(startIndex), uint64(nbToFetch))
+
+	for partnerList != nil {
+		startIndex += nbToFetch
+		if err != nil {
+			log.Println("Unable to update db for partner: ", err)
+			continue
+		}
+		partnerList, err = partners.UpdatePartners(uint64(startIndex), uint64(nbToFetch))
+	}
+}
+
 func updateUsers() {
 	_, err := user.UpdateUsers()
 	if err != nil {
@@ -63,5 +79,6 @@ func updateUsers() {
 func UpdateData() {
 	updateStartups()
 	updateInvestors()
+	updatePartners()
 	updateUsers()
 }
