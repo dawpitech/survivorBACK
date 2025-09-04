@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/startups"
+	"FranceDeveloppe/JEB-backend/tasks/fetcher/users"
 	"log"
 )
 
@@ -36,6 +37,7 @@ func updateStartups() {
 }
 
 func updateUsers() {
+	user.UpdateUsers()
 }
 
 func UpdateData() {

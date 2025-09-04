@@ -51,7 +51,11 @@ func postUser(userList []legacy.UserLegacy) error {
 			InvestorID: userLegacy.InvestorID,
 			ID: &userLegacy.ID,
 		}
-		initializers.DB.Create(user)
+		var counter int64
+		initializers.DB.Table("users").Where("id=?", *user.ID).Count(&counter)
+		if counter == 0 {
+			initializers.DB.Create(&user)
+		}
 	}
 	return nil
 }
