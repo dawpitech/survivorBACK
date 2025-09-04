@@ -66,14 +66,14 @@ func updatePartners() {
 }
 
 func updateUsers() {
-	_, err := user.UpdateUsers()
+	userList, err := user.UpdateUsers()
 	if err != nil {
 		log.Println("Unable to update db for user: ", err)
 		return
 	}
-	// for _, singleUser := range(userList) {
-	// 	user.UpdateUserImage(uint64(singleUser.ID))
-	// }
+	for _, singleUser := range(userList) {
+		user.UpdateUserImage(uint64(singleUser.ID))
+	}
 }
 
 func updateNews() {

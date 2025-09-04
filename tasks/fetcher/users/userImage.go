@@ -1,6 +1,8 @@
 package user
 
 import (
+	"FranceDeveloppe/JEB-backend/initializers"
+	"FranceDeveloppe/JEB-backend/models"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/utils"
 	"fmt"
 	"log"
@@ -9,7 +11,7 @@ import (
 	"os"
 )
 
-func setupSingleUsersQuery(userId uint64) (*url.URL, error) {
+func setupSingleUsersImageQuery(userId uint64) (*url.URL, error) {
 	baseUrl := fmt.Sprintf("%s/users/%d/image", os.Getenv("API_URL"), userId)
 	endpoint, err := url.Parse(baseUrl)
 	if err != nil {
@@ -23,7 +25,7 @@ func setupSingleUsersQuery(userId uint64) (*url.URL, error) {
 	return endpoint, nil
 }
 
-func getSingleUser(entrypoint *url.URL) (string, error) {
+func getSingleUserImage(entrypoint *url.URL) (string, error) {
 	var userImage string
 
 	req, err := http.NewRequest("GET", entrypoint.String(), nil)
@@ -34,10 +36,11 @@ func getSingleUser(entrypoint *url.URL) (string, error) {
 	}
 	req.Header.Add("X-Group-Authorization", os.Getenv("API_KEY"))
 
-	_, err = utils.SendRequest("get for single user", req, &userImage, false)
+	result, err := utils.SendRequest("get for single user", req, &userImage, false)
 	if err != nil {
 		return userImage, err
 	}
+	userImage = result.(string)
 	return userImage, nil
 }
 
@@ -81,12 +84,12 @@ func postUserImage(userId uint64, image string) error {
 func UpdateUserImage(userId uint64) (string, error) {
 	var userImage string
 
-	endpoint, err := setupSingleUsersQuery(userId)
+	endpoint, err := setupSingleUsersImageQuery(userId)
 	if err != nil {
 		return userImage, err
 	}
 
-	userImage, err = getSingleUser(endpoint)
+	userImage, err = getSingleUserImage(endpoint)
 	if err != nil {
 		return userImage, err
 	}
