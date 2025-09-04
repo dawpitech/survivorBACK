@@ -1,20 +1,26 @@
 package models
 
 type User struct {
-	UUID         string  `json:"uuid" gorm:"primary_key"`
-	ID           *uint   `json:"id" gorm:"unique"`
-	Name         string  `json:"name"`
-	Email        string  `json:"email" gorm:"unique;not null;default:null"`
-	Password     *string `json:"password"`
-	Role         string  `json:"role"`
-	FounderUUID  *string `json:"founder_uuid"`
-	FounderID    *uint   `json:"founder_id"`
-	InvestorUUID *string `json:"investor_uuid"`
-	InvestorID   *uint   `json:"investor_id"`
+	UUID string `json:"uuid" gorm:"type:uuid;primary_key"`
+	ID   *uint  `json:"id" gorm:"unique;index"` // legacy
+
+	Name     string  `json:"name"`
+	Email    string  `json:"email" gorm:"unique;not null;default:null"`
+	Password *string `json:"password"`
+	Role     string  `json:"role"`
+
+	FounderUUID *string  `json:"founder_uuid"`
+	FounderID   *uint    `json:"founder_id"` // legacy
+	Founder     *Founder `json:"founder" gorm:"foreignKey:FounderUUID;references:UUID"`
+
+	InvestorUUID *string   `json:"investor_uuid"`
+	InvestorID   *uint     `json:"investor_id"` // legacy
+	Investor     *Investor `json:"investor" gorm:"foreignKey:InvestorUUID;references:UUID"`
 }
 
 type PublicUser struct {
-	UUID         string  `json:"uuid"`
+	UUID string `json:"uuid"`
+
 	Name         string  `json:"name"`
 	Email        string  `json:"email"`
 	Role         string  `json:"role"`
