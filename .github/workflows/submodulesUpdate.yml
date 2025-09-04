@@ -10,7 +10,6 @@ jobs:
   compile:
     if: github.repository_owner == 'dawpitech'
     runs-on: ubuntu-latest
-    container: epitechcontent/epitest-docker
 
     steps:
       - name: Checkout repository
