@@ -88,6 +88,13 @@ func updateNews() {
 			log.Println("Unable to update db for news: ", err)
 			continue
 		}
+		for _, singleNews := range newsList {
+			_, err := news.UpdateSingleNews(uint64(*singleNews.ID))
+			if err != nil {
+				log.Println("Unable to update db for startup: ", err)
+			}
+
+		}
 		newsList, err = news.UpdateNewsList(uint64(startIndex), uint64(nbToFetch))
 	}
 }

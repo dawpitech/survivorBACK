@@ -7,3 +7,8 @@ type NewsLegacy struct {
 	Category  *string `json:"category"`
 	StartupId *uint   `json:"startup_id"`
 }
+
+type NewsDetailsLegacy struct {
+	NewsLegacy
+	Description string `json:"description"`
+}
