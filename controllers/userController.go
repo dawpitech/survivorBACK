@@ -18,6 +18,28 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+func GetMe(c *gin.Context) {
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	var user models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		user = u
+	case *models.User:
+		user = *u
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, user.GetPublicUser())
+}
+
 func GetUser(c *gin.Context) {
 	uuidParam := c.Param("uuid")
 

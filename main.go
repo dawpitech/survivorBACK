@@ -41,6 +41,7 @@ func main() {
 	// User management routes
 	defaultRoutes.GET("/users", controllers.GetAllUsers)
 	defaultRoutes.PUT("/users", controllers.CreateNewUser)
+	defaultRoutes.GET("/user/me", middlewares.CheckAuth, controllers.GetMe)
 	defaultRoutes.GET("/user/:uuid", controllers.GetUser)
 	defaultRoutes.DELETE("/user/:uuid", controllers.DeleteUser)
 	defaultRoutes.PATCH("/user/:uuid", controllers.UpdateUser)
