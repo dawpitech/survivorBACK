@@ -80,6 +80,9 @@ func updateEvent() {
 			log.Println("Unable to update db for event: ", err)
 			continue
 		}
+		for _, singleEvent := range(eventList) {
+			event.UpdateEventImage(uint64(*singleEvent.ID))
+		}
 		eventList, err = event.UpdateEvent(uint64(startIndex), uint64(nbToFetch))
 	}
 }
