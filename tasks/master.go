@@ -20,7 +20,7 @@ var tasks = []backgroundTasks{
 	{
 		Enable:  true,
 		Handler: fetcher.UpdateData,
-		Delay:   time.Second * 10,
+		Delay:   time.Minute * 10,
 	},
 }
 
