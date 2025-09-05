@@ -41,8 +41,40 @@ func getSingleUser(entrypoint *url.URL) (string, error) {
 	return userImage, nil
 }
 
-// I musn't forget to implement this function to post image
 func postUserImage(userId uint64, image string) error {
+	user := models.User{}
+	result := initializers.DB.Where("id=?", userId).First(&user)
+	if result.Error != nil {
+		log.Printf("Error finding user with ID %d: %s", userId, result.Error)
+		return result.Error
+	}
+
+	imageBytes := []byte(image)
+
+	userPicture := models.UserPicture{
+		UserUUID: user.UUID,
+		Picture:  imageBytes,
+	}
+
+	var existingPicture models.UserPicture
+	var counter int64
+	result = initializers.DB.Table("user_pictures").Where("user_uuid=?", user.UUID).Count(&counter)
+
+	if counter == 0 {
+		result = initializers.DB.Create(&userPicture)
+		if result.Error != nil {
+			log.Printf("Error creating user picture for user %s: %s", user.UUID, result.Error)
+			return result.Error
+		}
+		return nil
+	}
+
+	result = initializers.DB.Model(&existingPicture).Where("user_uuid=?", user.UUID).Update("picture", imageBytes)
+	if result.Error != nil {
+		log.Printf("Error updating user picture for user %s: %s", user.UUID, result.Error)
+		return result.Error
+	}
+
 	return nil
 }
 
@@ -58,6 +90,6 @@ func UpdateUserImage(userId uint64) (string, error) {
 	if err != nil {
 		return userImage, err
 	}
-	err = postUserImage(userId, userImage)
+	postUserImage(userId, userImage)
 	return userImage, nil
 }

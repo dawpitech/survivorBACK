@@ -33,7 +33,6 @@ func updateStartups() {
 		}
 		startupList, err = startups.UpdateStartupList(uint64(startIndex), uint64(nbToFetch))
 	}
-	log.Println("DB legacy entirely fetched")
 }
 
 func updateInvestors() {
@@ -105,4 +104,5 @@ func UpdateData() {
 	updatePartners()
 	updateNews()
 	updateUsers()
+	log.Println("DB legacy entirely fetched")
 }
