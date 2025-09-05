@@ -1,4 +1,4 @@
-package partners
+package partner
 
 import (
 	"FranceDeveloppe/JEB-backend/initializers"

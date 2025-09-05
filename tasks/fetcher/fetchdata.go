@@ -56,7 +56,7 @@ func updateInvestors() {
 func updatePartners() {
 	startIndex := 0
 	nbToFetch := 10
-	partnerList, err := partners.UpdatePartners(uint64(startIndex), uint64(nbToFetch))
+	partnerList, err := partner.UpdatePartners(uint64(startIndex), uint64(nbToFetch))
 
 	for partnerList != nil {
 		startIndex += nbToFetch
@@ -64,7 +64,7 @@ func updatePartners() {
 			log.Println("Unable to update db for partner: ", err)
 			continue
 		}
-		partnerList, err = partners.UpdatePartners(uint64(startIndex), uint64(nbToFetch))
+		partnerList, err = partner.UpdatePartners(uint64(startIndex), uint64(nbToFetch))
 	}
 }
 
@@ -95,6 +95,7 @@ func updateNews() {
 			if err != nil {
 				log.Println("Unable to update db for startup: ", err)
 			}
+			news.UpdateNewsImage(uint64(*singleNews.ID))
 
 		}
 		newsList, err = news.UpdateNewsList(uint64(startIndex), uint64(nbToFetch))
