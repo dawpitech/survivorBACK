@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	event "FranceDeveloppe/JEB-backend/tasks/fetcher/events"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/investors"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/news"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/partners"
@@ -68,6 +69,21 @@ func updatePartners() {
 	}
 }
 
+func updateEvent() {
+	startIndex := 0
+	nbToFetch := 10
+	eventList, err := event.UpdateEvent(uint64(startIndex), uint64(nbToFetch))
+
+	for eventList != nil {
+		startIndex += nbToFetch
+		if err != nil {
+			log.Println("Unable to update db for event: ", err)
+			continue
+		}
+		eventList, err = event.UpdateEvent(uint64(startIndex), uint64(nbToFetch))
+	}
+}
+
 func updateUsers() {
 	userList, err := user.UpdateUsers()
 	if err != nil {
@@ -107,6 +123,7 @@ func UpdateData() {
 	updateInvestors()
 	updatePartners()
 	updateNews()
+	updateEvent()
 	updateUsers()
 	log.Println("DB legacy entirely fetched")
 }

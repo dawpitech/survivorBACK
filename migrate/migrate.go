@@ -26,6 +26,7 @@ func main() {
 		&models.FounderPicture{},
 		&models.InvestorPicture{},
 		&models.NewsPicture{},
+		&models.Event{},
 	)
 	if err != nil {
 		fmt.Println(err.Error())
