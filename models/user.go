@@ -4,9 +4,9 @@ type User struct {
 	UUID string `json:"uuid" gorm:"type:uuid;primary_key"`
 	ID   *uint  `json:"id" gorm:"unique;index"` // legacy
 
-	Name     string  `json:"name"`
-	Email    string  `json:"email" gorm:"unique;not null;default:null"`
-	Password *string `json:"password"`
+	Name     string  `json:"name" fd:"editable"`
+	Email    string  `json:"email" gorm:"unique;not null;default:null" fd:"editable"`
+	Password *string `json:"password" fd:"editable"`
 	Role     string  `json:"role"`
 
 	FounderUUID *string  `json:"founder_uuid"`

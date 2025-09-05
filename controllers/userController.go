@@ -135,17 +135,14 @@ func UpdateUser(c *gin.Context) {
 
 	var updates map[string]interface{}
 	if err := c.ShouldBindJSON(&updates); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid body"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 
-	delete(updates, "uuid")
-	delete(updates, "id")
-	delete(updates, "founder_uuid")
-	delete(updates, "founder_id")
-	delete(updates, "investor_uuid")
-	delete(updates, "investor_id")
-	delete(updates, "role")
+	if !IsBodyCorrectlyFormed(models.User{}, updates) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid body"})
+		return
+	}
 
 	if val, ok := updates["password"]; ok {
 		if passwordStr, ok := val.(string); ok && passwordStr != "" {
