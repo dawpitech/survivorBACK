@@ -32,6 +32,7 @@ func RunTasksInBackground() {
 		ticker := time.NewTicker(task.Delay)
 		go func() {
 			defer ticker.Stop()
+			task.Handler()
 			for {
 				select {
 				case <-ticker.C:
