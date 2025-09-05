@@ -46,6 +46,9 @@ func updateInvestors() {
 			log.Println("Unable to update db for investors: ", err)
 			continue
 		}
+		for _, singleInvestor := range(investorList) {
+			investor.UpdateInvestorImage(uint64(*singleInvestor.ID))
+		}
 		investorList, err = investor.UpdateInvestor(uint64(startIndex), uint64(nbToFetch))
 	}
 }
