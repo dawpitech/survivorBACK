@@ -203,6 +203,9 @@ func main() {
 		Version:     "2.1.0",
 	}
 	fizzRouter.GET("/api/openapi.json", nil, fizzRouter.OpenAPI(infos, "json"))
+	fizzRouter.GET("/favicon.ico", nil, func(c *gin.Context) {
+		c.File("./favicon.ico")
+	})
 
 	err = router.Run("0.0.0.0:24680")
 	if err != nil {
