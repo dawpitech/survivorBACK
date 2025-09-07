@@ -3,33 +3,25 @@ package controllers
 import (
 	"FranceDeveloppe/JEB-backend/initializers"
 	"FranceDeveloppe/JEB-backend/models"
+	"FranceDeveloppe/JEB-backend/models/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/juju/errors"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 	"os"
 	"time"
 )
 
-func LoginUser(c *gin.Context) {
-	var authInput models.AuthInput
-
-	if err := c.ShouldBindJSON(&authInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
+func LoginUser(_ *gin.Context, in *routes.AuthInput) (*routes.AuthResponse, error) {
 	var userFound models.User
-	initializers.DB.Where("email=?", authInput.Email).Find(&userFound)
+	initializers.DB.Where("email=?", in.Email).Find(&userFound)
 
 	if userFound.UUID == "" || userFound.Password == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
-		return
+		return nil, errors.NewNotFound(nil, "Invalid username or password")
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(*userFound.Password), []byte(authInput.Password)); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid username or password"})
-		return
+	if err := bcrypt.CompareHashAndPassword([]byte(*userFound.Password), []byte(in.Password)); err != nil {
+		return nil, errors.NewNotFound(nil, "Invalid username or password")
 	}
 
 	generateToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -40,49 +32,40 @@ func LoginUser(c *gin.Context) {
 	token, err := generateToken.SignedString([]byte(os.Getenv("SECRET")))
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return nil, errors.New("Internal server error")
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	response := routes.AuthResponse{
+		Token: token,
+	}
+	return &response, nil
 }
 
-func CreateUser(c *gin.Context) {
-	var authInput models.AuthInput
-
-	if err := c.ShouldBindJSON(&authInput); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
+func CreateUser(_ *gin.Context, in *routes.AuthInput) (*struct{}, error) {
 	var userFound models.User
-	if findResult := initializers.DB.Where("email=?", authInput.Email).Find(&userFound); findResult.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+	if findResult := initializers.DB.Where("email=?", in.Email).Find(&userFound); findResult.Error != nil {
+		return nil, errors.New("Internal server error")
 	}
 
 	if userFound.Password != nil && userFound.UUID != "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already used"})
-		return
+		return nil, errors.NewNotValid(nil, "Email already used")
 	}
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(authInput.Password), bcrypt.DefaultCost)
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return nil, errors.New("Internal server error")
 	}
 
 	password := string(passwordHash)
 	if userFound.Password == nil && userFound.UUID != "" {
 		if updateResult := initializers.DB.Model(&userFound).Update("password", password); updateResult.Error != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-			return
+			return nil, errors.New("Internal server error")
 		}
-		c.JSON(http.StatusOK, gin.H{"user": userFound.GetPublicUser()})
+		var empty struct{}
+		return &empty, nil
 	} else {
 		// Temporarily disable creation of new account
-		c.JSON(http.StatusForbidden, gin.H{"error": "Account creation is disabled."})
-		return
+		return nil, errors.NewForbidden(nil, "Account creation is disabled.")
 		/*
 			user := models.User{
 				UUID:     uuid.New().String(),

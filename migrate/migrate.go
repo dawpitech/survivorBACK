@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	initializers.LoadEnvs()
+	initializers.LoadEnvs(false)
 	initializers.ConnectDB()
 }
 

@@ -4,17 +4,23 @@ import (
 	"FranceDeveloppe/JEB-backend/controllers"
 	"FranceDeveloppe/JEB-backend/initializers"
 	"FranceDeveloppe/JEB-backend/middlewares"
+	"FranceDeveloppe/JEB-backend/models/routes"
 	"FranceDeveloppe/JEB-backend/tasks"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/loopfz/gadgeto/tonic"
+	"github.com/loopfz/gadgeto/tonic/utils/jujerr"
+	"github.com/wI2L/fizz"
+	"github.com/wI2L/fizz/openapi"
+
 	"time"
 )
 
 func init() {
 	fmt.Println("Initializing...")
 
-	initializers.LoadEnvs()
+	initializers.LoadEnvs(true)
 	initializers.ConnectDB()
 }
 
@@ -31,7 +37,7 @@ func main() {
 	}
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:80", "http://localhost", "http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost", "http://localhost:80", "http://localhost:3000"},
 		AllowMethods:     []string{"GET", "PATCH", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -39,32 +45,161 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	defaultRoutes := router.Group("/api")
-	legacyRoutes := defaultRoutes.Group("/legacy/")
+	tonic.SetErrorHook(jujerr.ErrHook)
+	fizzRouter := fizz.NewFromEngine(router)
 
 	// Auth routes
-	defaultRoutes.POST("/auth/signup", controllers.CreateUser)
-	defaultRoutes.POST("/auth/login", controllers.LoginUser)
+	fizzRouter.POST(
+		"/api/auth/signup",
+		[]fizz.OperationOption{
+			fizz.Summary("Sign-up a new user"),
+			fizz.Response(
+				"400",
+				"Email already used",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.CreateUser, 200),
+	)
+	fizzRouter.POST(
+		"/api/auth/login",
+		[]fizz.OperationOption{
+			fizz.Summary("Sign-in as an user"),
+			fizz.Response(
+				"404",
+				"Invalid username or password",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.LoginUser, 200),
+	)
 
 	// User management routes
-	defaultRoutes.GET("/users", controllers.GetAllUsers)
-	defaultRoutes.PUT("/users", controllers.CreateNewUser)
-	defaultRoutes.GET("/user/me", middlewares.CheckAuth, controllers.GetMe)
-	defaultRoutes.GET("/user/:uuid", controllers.GetUser)
-	defaultRoutes.DELETE("/user/:uuid", controllers.DeleteUser)
-	defaultRoutes.PATCH("/user/:uuid", controllers.UpdateUser)
+	fizzRouter.GET(
+		"/api/users",
+		[]fizz.OperationOption{
+			fizz.Summary("Get list of all registered users"),
+		},
+		tonic.Handler(controllers.GetAllUsers, 200),
+	)
+	fizzRouter.POST(
+		"/api/users",
+		[]fizz.OperationOption{
+			fizz.Summary("Register a new user"),
+			fizz.Response(
+				"400",
+				"Email already used",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"User not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.CreateNewUser, 200),
+	)
+	fizzRouter.GET(
+		"/api/user/me",
+		[]fizz.OperationOption{
+			fizz.Summary("Get informations about the logged-in user"),
+			fizz.Response(
+				"401",
+				"Unauthorized",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+		},
+		middlewares.CheckAuth,
+		tonic.Handler(controllers.GetMe, 200),
+	)
+	fizzRouter.GET(
+		"/api/user/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the user with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"User not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetUser, 200),
+	)
+	fizzRouter.DELETE(
+		"/api/user/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Delete the user with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"User not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.DeleteUser, 200),
+	)
+	fizzRouter.PATCH(
+		"/api/user/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Update the user with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"User not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.UpdateUser, 200),
+	)
 
 	// Startup management routes
-	defaultRoutes.GET("/startups", controllers.GetAllStartups)
-	defaultRoutes.PUT("/startups", controllers.CreateNewStartup)
-	defaultRoutes.GET("/startup/:uuid", controllers.GetStartup)
-	defaultRoutes.DELETE("/startup/:uuid", controllers.DeleteStartup)
-	defaultRoutes.PATCH("/startup/:uuid", controllers.UpdateStartup)
+	fizzRouter.GET("/api/startups", nil, controllers.GetAllStartups)
+	fizzRouter.POST("/api/startups", nil, controllers.CreateNewStartup)
+	fizzRouter.GET("/api/startup/:uuid", nil, controllers.GetStartup)
+	fizzRouter.DELETE("/api/startup/:uuid", nil, controllers.DeleteStartup)
+	fizzRouter.PATCH("/api/startup/:uuid", nil, controllers.UpdateStartup)
 
-	// TODO/ all legacy Routes will be removed
-	legacyRoutes.Use(middlewares.EnsureIncomingFromLocalhost)
-	//legacyRoutes.POST("/createUser", controllers.CreateUserFromLegacy)
-	//legacyRoutes.POST("/createInvestor", controllers.CreateInvestorFromLegacy)
+	fizzRouter.Generator().SetSecuritySchemes(map[string]*openapi.SecuritySchemeOrRef{
+		"bearerAuth": {
+			SecurityScheme: &openapi.SecurityScheme{
+				Type:         "http",
+				Scheme:       "bearer",
+				BearerFormat: "JWT",
+			},
+		},
+	})
+	infos := &openapi.Info{
+		Title:       "JEB Incubator internal API",
+		Description: "Internal API used by the JEB incubator platform",
+		Version:     "2.1.0",
+	}
+	fizzRouter.GET("/api/openapi.json", nil, fizzRouter.OpenAPI(infos, "json"))
 
 	err = router.Run("0.0.0.0:24680")
 	if err != nil {

@@ -3,27 +3,30 @@ package controllers
 import (
 	"FranceDeveloppe/JEB-backend/initializers"
 	"FranceDeveloppe/JEB-backend/models"
+	"FranceDeveloppe/JEB-backend/models/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/juju/errors"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 )
 
-func GetAllUsers(c *gin.Context) {
+func GetAllUsers(_ *gin.Context, _ *struct{}) (*[]models.PublicUser, error) {
 	var users []models.User
+	var publicUsers []models.PublicUser
 	if result := initializers.DB.Find(&users); result.Error != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+		return nil, errors.New("Internal server error")
 	}
-	c.JSON(http.StatusOK, users)
+	for _, user := range users {
+		publicUsers = append(publicUsers, user.GetPublicUser())
+	}
+	return &publicUsers, nil
 }
 
-func GetMe(c *gin.Context) {
+func GetMe(c *gin.Context, _ *struct{}) (*models.PublicUser, error) {
 	userInterface, exist := c.Get("currentUser")
 
 	if !exist {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+		return nil, errors.New("Internal server error")
 	}
 
 	var user models.User
@@ -33,56 +36,44 @@ func GetMe(c *gin.Context) {
 	case *models.User:
 		user = *u
 	default:
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+		return nil, errors.New("Internal server error")
 	}
 
-	c.JSON(http.StatusOK, user.GetPublicUser())
+	userPublic := user.GetPublicUser()
+	return &userPublic, nil
 }
 
-func GetUser(c *gin.Context) {
-	uuidParam := c.Param("uuid")
-
-	if uuidParam == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID"})
-		return
+func GetUser(_ *gin.Context, in *routes.GetUserRequest) (*models.PublicUser, error) {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return nil, errors.NewNotValid(nil, "Invalid UUID")
 	}
 
-	var userFound models.User
-	if rst := initializers.DB.Where("uuid=?", uuidParam).Find(&userFound); rst.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Unknown UUID"})
-		return
+	var user models.User
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&user); rst.Error != nil {
+		return nil, errors.NewUserNotFound(nil, "User not found")
 	}
 
-	c.JSON(http.StatusOK, userFound.GetPublicUser())
+	userFoundPublic := user.GetPublicUser()
+	return &userFoundPublic, nil
 }
 
-func CreateNewUser(c *gin.Context) {
-	var userCreationRequest models.UserCreationRequest
-
-	if err := c.ShouldBindJSON(&userCreationRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
+func CreateNewUser(_ *gin.Context, in *routes.UserCreationRequest) (*models.PublicUser, error) {
 	var userFound models.User
-	if findResult := initializers.DB.Where("email=?", userCreationRequest.Email).Find(&userFound); findResult.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+	if findResult := initializers.DB.Where("email=?", in.Email).Find(&userFound); findResult.Error != nil {
+		return nil, errors.NewUserNotFound(nil, "User not found")
 	}
 
 	if userFound.Password != nil && userFound.UUID != "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already used"})
-		return
+		return nil, errors.NewAlreadyExists(nil, "Email already used")
 	}
 
 	user := models.User{
 		UUID:         uuid.New().String(),
 		ID:           nil,
-		Name:         userCreationRequest.Name,
-		Email:        userCreationRequest.Email,
+		Name:         in.Name,
+		Email:        in.Email,
 		Password:     nil,
-		Role:         userCreationRequest.Role,
+		Role:         in.Role,
 		FounderUUID:  nil,
 		FounderID:    nil,
 		InvestorUUID: nil,
@@ -90,75 +81,64 @@ func CreateNewUser(c *gin.Context) {
 	}
 
 	if createResult := initializers.DB.Create(&user); createResult.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+		return nil, errors.New("Internal server error")
 	}
 
-	c.Status(http.StatusOK)
+	publicUser := user.GetPublicUser()
+	return &publicUser, nil
 }
 
-func DeleteUser(c *gin.Context) {
-	uuidParam := c.Param("uuid")
-
-	if uuidParam == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID"})
-		return
+func DeleteUser(_ *gin.Context, in *routes.DeleteUserRequest) (*struct{}, error) {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return nil, errors.NewNotValid(nil, "Invalid UUID")
 	}
 
 	var userFound models.User
-	if rst := initializers.DB.Where("uuid=?", uuidParam).Find(&userFound); rst.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Unknown UUID"})
-		return
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&userFound); rst.Error != nil {
+		return nil, errors.NewUserNotFound(nil, "User not found")
 	}
 
 	if rst := initializers.DB.Delete(&userFound); rst.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+		return nil, errors.New("Internal server error")
 	}
 
-	c.Status(http.StatusOK)
+	var empty struct{}
+	return &empty, nil
 }
 
-func UpdateUser(c *gin.Context) {
-	uuidParam := c.Param("uuid")
-
-	if uuidParam == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID"})
-		return
+func UpdateUser(_ *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUser, error) {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return nil, errors.NewNotValid(nil, "Invalid UUID")
 	}
 
 	var userFound models.User
-	if rst := initializers.DB.Where("uuid=?", uuidParam).Find(&userFound); rst.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Unknown UUID"})
-		return
+	if rst := initializers.DB.Where("uuid = ?", in.UUID).First(&userFound); rst.Error != nil {
+		return nil, errors.NewUserNotFound(nil, "User not found")
 	}
 
-	var updates map[string]interface{}
-	if err := c.ShouldBindJSON(&updates); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+	if in.Name == "" && in.Email == "" && in.Password == "" {
+		return nil, errors.NewNotValid(nil, "Invalid elements")
 	}
 
-	if !IsBodyCorrectlyFormed(models.User{}, updates) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid body"})
-		return
+	updates := make(map[string]interface{})
+	if in.Name != "" {
+		updates["name"] = in.Name
 	}
-
-	if val, ok := updates["password"]; ok {
-		if passwordStr, ok := val.(string); ok && passwordStr != "" {
-			passwordHash, err := bcrypt.GenerateFromPassword([]byte(passwordStr), bcrypt.DefaultCost)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-			updates["password"] = string(passwordHash)
+	if in.Email != "" {
+		updates["email"] = in.Email
+	}
+	if in.Password != "" {
+		passwordHash, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, err
 		}
+		updates["password"] = string(passwordHash)
 	}
 
-	if err := initializers.DB.Model(&userFound).Updates(updates); err.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+	if err := initializers.DB.Model(&userFound).Updates(updates).Error; err != nil {
+		return nil, errors.New("Internal server error")
 	}
 
-	c.Status(http.StatusOK)
+	publicUser := userFound.GetPublicUser()
+	return &publicUser, nil
 }

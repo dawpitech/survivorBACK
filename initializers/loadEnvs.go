@@ -14,13 +14,15 @@ func checkEnv(key string) {
 	}
 }
 
-func LoadEnvs() {
+func LoadEnvs(strict bool) {
 	err := godotenv.Load()
 	if err == nil {
 		log.Print("Using .env file")
 	}
-	//checkEnv("API_URL")
-	//checkEnv("API_KEY")
-	//checkEnv("JWT_MASTER_SECRET")
-	//checkEnv("DB_URL")
+	if strict {
+		checkEnv("API_URL")
+		checkEnv("API_KEY")
+		checkEnv("JWT_MASTER_SECRET")
+		checkEnv("DB_URL")
+	}
 }
