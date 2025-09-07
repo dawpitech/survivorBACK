@@ -23,8 +23,3 @@ type StartupDetail struct {
 	Needs          *string   `json:"needs"`
 	Founders       []Founder `json:"founders" gorm:"foreignKey:StartupUUID;references:UUID"`
 }
-
-type StartupCreationRequest struct {
-	Name  string `json:"name" binding:"required"`
-	Email string `json:"email" binding:"required"`
-}

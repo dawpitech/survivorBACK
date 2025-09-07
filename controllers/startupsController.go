@@ -3,55 +3,43 @@ package controllers
 import (
 	"FranceDeveloppe/JEB-backend/initializers"
 	"FranceDeveloppe/JEB-backend/models"
+	"FranceDeveloppe/JEB-backend/models/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/juju/errors"
 	"net/http"
 	"time"
 )
 
-func GetAllStartups(c *gin.Context) {
-	var startups []models.StartupDetail
-	if result := initializers.DB.Find(&startups); result.Error != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+func GetAllStartups(_ *gin.Context, _ *struct{}) (*[]models.StartupDetail, error) {
+	var users []models.StartupDetail
+	if result := initializers.DB.Find(&users); result.Error != nil {
+		return nil, errors.New("Internal server error")
 	}
-	c.JSON(http.StatusOK, startups)
+	return &users, nil
 }
 
-func GetStartup(c *gin.Context) {
-	uuidParam := c.Param("uuid")
-
-	if uuidParam == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID"})
-		return
+func GetStartup(_ *gin.Context, in *routes.GetStartupRequest) (*models.StartupDetail, error) {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return nil, errors.NewNotValid(nil, "Invalid UUID")
 	}
 
-	var startupFound models.StartupDetail
-	if rst := initializers.DB.Where("uuid=?", uuidParam).Find(&startupFound); rst.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Unknown UUID"})
-		return
+	var startup models.StartupDetail
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&startup); rst.Error != nil {
+		return nil, errors.NewUserNotFound(nil, "Startup not found")
 	}
 
-	c.JSON(http.StatusOK, startupFound)
+	return &startup, nil
 }
 
-func CreateNewStartup(c *gin.Context) {
-	var startupCreationRequest models.StartupCreationRequest
-
-	if err := c.ShouldBindJSON(&startupCreationRequest); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
+func CreateNewStartup(_ *gin.Context, in *routes.StartupCreationRequest) (*models.StartupDetail, error) {
 	var startupFound models.StartupDetail
-	if findResult := initializers.DB.Where("email=?", startupFound.Email).Find(&startupFound); findResult.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+	if findResult := initializers.DB.Where("email=?", in.Email).Find(&startupFound); findResult.Error != nil {
+		return nil, errors.New("Internal server error")
 	}
 
 	if startupFound.UUID != "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already used"})
-		return
+		return nil, errors.NewAlreadyExists(nil, "Email already used")
 	}
 
 	currentDate := time.Now().Format("2006-01-02")
@@ -59,10 +47,10 @@ func CreateNewStartup(c *gin.Context) {
 		StartupList: models.StartupList{
 			UUID:        uuid.New().String(),
 			ID:          nil,
-			Name:        startupCreationRequest.Name,
+			Name:        in.Name,
 			LegalStatus: nil,
 			Address:     nil,
-			Email:       startupCreationRequest.Email,
+			Email:       in.Email,
 			Phone:       nil,
 			Sector:      nil,
 			Maturity:    nil,
@@ -76,12 +64,11 @@ func CreateNewStartup(c *gin.Context) {
 		Founders:       nil,
 	}
 
-	if createResult := initializers.DB.Create(&startup); createResult.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+	if err := initializers.DB.Create(&startup); err.Error != nil {
+		return nil, errors.New("Internal server error")
 	}
-
-	c.Status(http.StatusOK)
+	
+	return &startup, nil
 }
 
 func DeleteStartup(c *gin.Context) {

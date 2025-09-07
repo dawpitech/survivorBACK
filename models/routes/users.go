@@ -6,9 +6,7 @@ type UserCreationRequest struct {
 	Role  string `json:"role" binding:"required"`
 }
 
-type GetUserRequest struct {
-	UUID string `path:"uuid" validate:"required"`
-}
+type GetUserRequest = GenericUUIDFromPath
 
 type UpdateUserRequest struct {
 	UUID     string `path:"uuid" validate:"required"`

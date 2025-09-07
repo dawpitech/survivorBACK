@@ -182,11 +182,48 @@ func main() {
 	)
 
 	// Startup management routes
-	fizzRouter.GET("/api/startups", nil, controllers.GetAllStartups)
-	fizzRouter.POST("/api/startups", nil, controllers.CreateNewStartup)
-	fizzRouter.GET("/api/startup/:uuid", nil, controllers.GetStartup)
-	fizzRouter.DELETE("/api/startup/:uuid", nil, controllers.DeleteStartup)
-	fizzRouter.PATCH("/api/startup/:uuid", nil, controllers.UpdateStartup)
+	startupRoutes := globalRoutes.Group("/startups", "Startup access", "This group contains all startups endpoints")
+	startupRoutes.GET(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Get list of all startups"),
+		},
+		tonic.Handler(controllers.GetAllStartups, 200),
+	)
+	startupRoutes.POST(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Create a new startup"),
+			fizz.Response(
+				"400",
+				"Email already used",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.CreateNewStartup, 200),
+	)
+	startupRoutes.GET(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the startup with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Startup not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetStartup, 200),
+	)
+	startupRoutes.DELETE("/:uuid", nil, controllers.DeleteStartup)
+	startupRoutes.PATCH("/:uuid", nil, controllers.UpdateStartup)
 
 	fizzRouter.Generator().SetSecuritySchemes(map[string]*openapi.SecuritySchemeOrRef{
 		"bearerAuth": {
