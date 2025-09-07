@@ -47,10 +47,12 @@ func main() {
 
 	tonic.SetErrorHook(jujerr.ErrHook)
 	fizzRouter := fizz.NewFromEngine(router)
+	globalRoutes := fizzRouter.Group("/api", "Others", "")
 
 	// Auth routes
-	fizzRouter.POST(
-		"/api/auth/signup",
+	authRoutes := globalRoutes.Group("/auth", "Authentification", "This group contains all sessions authentifications endpoints")
+	authRoutes.POST(
+		"signup",
 		[]fizz.OperationOption{
 			fizz.Summary("Sign-up a new user"),
 			fizz.Response(
@@ -62,8 +64,8 @@ func main() {
 		},
 		tonic.Handler(controllers.CreateUser, 200),
 	)
-	fizzRouter.POST(
-		"/api/auth/login",
+	authRoutes.POST(
+		"login",
 		[]fizz.OperationOption{
 			fizz.Summary("Sign-in as an user"),
 			fizz.Response(
@@ -77,15 +79,16 @@ func main() {
 	)
 
 	// User management routes
-	fizzRouter.GET(
-		"/api/users",
+	usersRoutes := globalRoutes.Group("/users", "User access", "This group contains all users endpoints")
+	usersRoutes.GET(
+		"/",
 		[]fizz.OperationOption{
 			fizz.Summary("Get list of all registered users"),
 		},
 		tonic.Handler(controllers.GetAllUsers, 200),
 	)
-	fizzRouter.POST(
-		"/api/users",
+	usersRoutes.POST(
+		"/",
 		[]fizz.OperationOption{
 			fizz.Summary("Register a new user"),
 			fizz.Response(
@@ -103,8 +106,8 @@ func main() {
 		},
 		tonic.Handler(controllers.CreateNewUser, 200),
 	)
-	fizzRouter.GET(
-		"/api/user/me",
+	usersRoutes.GET(
+		"/me",
 		[]fizz.OperationOption{
 			fizz.Summary("Get informations about the logged-in user"),
 			fizz.Response(
@@ -120,8 +123,8 @@ func main() {
 		middlewares.CheckAuth,
 		tonic.Handler(controllers.GetMe, 200),
 	)
-	fizzRouter.GET(
-		"/api/user/:uuid",
+	usersRoutes.GET(
+		"/:uuid",
 		[]fizz.OperationOption{
 			fizz.Summary("Get the user with the corresponding UUID"),
 			fizz.Response(
@@ -139,8 +142,8 @@ func main() {
 		},
 		tonic.Handler(controllers.GetUser, 200),
 	)
-	fizzRouter.DELETE(
-		"/api/user/:uuid",
+	usersRoutes.DELETE(
+		"/:uuid",
 		[]fizz.OperationOption{
 			fizz.Summary("Delete the user with the corresponding UUID"),
 			fizz.Response(
@@ -158,8 +161,8 @@ func main() {
 		},
 		tonic.Handler(controllers.DeleteUser, 200),
 	)
-	fizzRouter.PATCH(
-		"/api/user/:uuid",
+	usersRoutes.PATCH(
+		"/:uuid",
 		[]fizz.OperationOption{
 			fizz.Summary("Update the user with the corresponding UUID"),
 			fizz.Response(
