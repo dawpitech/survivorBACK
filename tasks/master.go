@@ -25,6 +25,12 @@ var tasks = []backgroundTasks{
 		Handler:    fetcher.UpdateData,
 		Delay:      time.Minute * 10,
 	},
+	{
+		Enable:     true,
+		Repetitive: true,
+		Handler:    UpdateUsersWithoutPP,
+		Delay:      time.Second * 30,
+	},
 }
 
 func RunTasksInBackground() {

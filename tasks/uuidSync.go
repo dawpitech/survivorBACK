@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func syncInvestorUUIDs(user models.User) {
+func syncInvestorUUIDs(user *models.User) {
 	if user.InvestorID == nil || user.InvestorUUID != nil {
 		return
 	}
@@ -31,6 +31,6 @@ func SyncUUIDs() {
 	}
 
 	for _, user := range users {
-		syncInvestorUUIDs(user)
+		syncInvestorUUIDs(&user)
 	}
 }
