@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 	"io"
 	"net/http"
+	"reflect"
 )
 
 func GetAllUsers(_ *gin.Context) (*[]models.PublicUser, error) {
@@ -127,7 +128,7 @@ func UpdateUser(_ *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUse
 	}
 
 	var userFound models.User
-	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&userFound); rst.Error != nil {
+	if rst := initializers.DB.Where("uuid=?", in.UUID).First(&userFound); rst.Error != nil {
 		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
 			return nil, errors.NewUserNotFound(nil, "User not found")
 		} else {
@@ -135,23 +136,37 @@ func UpdateUser(_ *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUse
 		}
 	}
 
-	if in.Name == "" && in.Email == "" && in.Password == "" {
-		return nil, errors.NewNotValid(nil, "Invalid body")
+	updates := make(map[string]interface{})
+	val := reflect.ValueOf(*in)
+	typ := reflect.TypeOf(*in)
+	hasUpdate := false
+
+	for i := 0; i < val.NumField(); i++ {
+		field := typ.Field(i)
+		jsonTag := field.Tag.Get("json")
+		if jsonTag == "" || jsonTag == "-" || jsonTag == "uuid" {
+			continue
+		}
+		fieldValue := val.Field(i)
+
+		if field.Name == "Password" && fieldValue.Kind() == reflect.String && fieldValue.String() != "" {
+			passwordHash, err := bcrypt.GenerateFromPassword([]byte(fieldValue.String()), bcrypt.DefaultCost)
+			if err != nil {
+				return nil, err
+			}
+			hasUpdate = true
+			updates[jsonTag] = string(passwordHash)
+			continue
+		}
+
+		if fieldValue.Kind() == reflect.String && fieldValue.String() != "" {
+			hasUpdate = true
+			updates[jsonTag] = fieldValue.String()
+		}
 	}
 
-	updates := make(map[string]interface{})
-	if in.Name != "" {
-		updates["name"] = in.Name
-	}
-	if in.Email != "" {
-		updates["email"] = in.Email
-	}
-	if in.Password != "" {
-		passwordHash, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return nil, err
-		}
-		updates["password"] = string(passwordHash)
+	if !hasUpdate {
+		return nil, errors.NewNotValid(nil, "Invalid body")
 	}
 
 	if err := initializers.DB.Model(&userFound).Updates(updates).Error; err != nil {
