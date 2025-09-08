@@ -22,6 +22,22 @@ func syncInvestorUUIDs(user *models.User) {
 	}
 }
 
+func syncFounderUUIDs(user *models.User) {
+	if user.FounderID == nil || user.FounderUUID != nil {
+		return
+	}
+	var founderFound models.Founder
+	initializers.DB.Where("id=?", user.FounderID).Find(&founderFound)
+
+	if founderFound.UUID == "" {
+		return
+	}
+	if result := initializers.DB.Model(&user).Update("founder_uuid", founderFound.UUID); result.Error != nil {
+		fmt.Printf("Couldn't update db with re-sync founder UUID on user %s\n", user.UUID)
+		return
+	}
+}
+
 func SyncUUIDs() {
 	var users []models.User
 
@@ -32,5 +48,6 @@ func SyncUUIDs() {
 
 	for _, user := range users {
 		syncInvestorUUIDs(&user)
+		syncFounderUUIDs(&user)
 	}
 }
