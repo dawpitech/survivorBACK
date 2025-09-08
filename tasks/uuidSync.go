@@ -26,7 +26,7 @@ func SyncUUIDs() {
 	var users []models.User
 
 	if result := initializers.DB.Find(&users); result.Error != nil {
-		fmt.Println("Couldn't fetch users from db to run UUID Sync Task!")
+		fmt.Printf("Couldn't fetch users from db to run UUID Sync Task!\n%s\n", result.Error.Error())
 		return
 	}
 
