@@ -15,7 +15,7 @@ import (
 	"net/http"
 )
 
-func GetAllUsers(_ *gin.Context, _ *struct{}) (*[]models.PublicUser, error) {
+func GetAllUsers(_ *gin.Context) (*[]models.PublicUser, error) {
 	var users []models.User
 	var publicUsers []models.PublicUser
 	if result := initializers.DB.Find(&users); result.Error != nil {
@@ -27,7 +27,7 @@ func GetAllUsers(_ *gin.Context, _ *struct{}) (*[]models.PublicUser, error) {
 	return &publicUsers, nil
 }
 
-func GetMe(c *gin.Context, _ *struct{}) (*models.PublicUser, error) {
+func GetMe(c *gin.Context) (*models.PublicUser, error) {
 	userInterface, exist := c.Get("currentUser")
 
 	if !exist {
@@ -55,11 +55,11 @@ func GetUser(_ *gin.Context, in *routes.GetUserRequest) (*models.PublicUser, err
 
 	var user models.User
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&user); rst.Error != nil {
-		return nil, errors.New("Internal server error")
-	}
-
-	if user.UUID == "" {
-		return nil, errors.NewNotFound(nil, "User not found")
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.NewUserNotFound(nil, "User not found")
+		} else {
+			return nil, errors.New("Internal server error")
+		}
 	}
 
 	userFoundPublic := user.GetPublicUser()
@@ -68,8 +68,12 @@ func GetUser(_ *gin.Context, in *routes.GetUserRequest) (*models.PublicUser, err
 
 func CreateNewUser(_ *gin.Context, in *routes.UserCreationRequest) (*models.PublicUser, error) {
 	var userFound models.User
-	if findResult := initializers.DB.Where("email=?", in.Email).Find(&userFound); findResult.Error != nil {
-		return nil, errors.NewUserNotFound(nil, "User not found")
+	if rst := initializers.DB.Where("email=?", in.Email).Find(&userFound); rst.Error != nil {
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.NewUserNotFound(nil, "User not found")
+		} else {
+			return nil, errors.New("Internal server error")
+		}
 	}
 
 	if userFound.Password != nil && userFound.UUID != "" {
@@ -104,11 +108,11 @@ func DeleteUser(_ *gin.Context, in *routes.DeleteUserRequest) error {
 
 	var userFound models.User
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&userFound); rst.Error != nil {
-		return errors.New("Internal server error")
-	}
-
-	if userFound.UUID == "" {
-		return errors.NewUserNotFound(nil, "User not found")
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return errors.NewUserNotFound(nil, "User not found")
+		} else {
+			return errors.New("Internal server error")
+		}
 	}
 
 	if rst := initializers.DB.Delete(&userFound); rst.Error != nil {
@@ -123,8 +127,12 @@ func UpdateUser(_ *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUse
 	}
 
 	var userFound models.User
-	if rst := initializers.DB.Where("uuid = ?", in.UUID).First(&userFound); rst.Error != nil {
-		return nil, errors.NewUserNotFound(nil, "User not found")
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&userFound); rst.Error != nil {
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.NewUserNotFound(nil, "User not found")
+		} else {
+			return nil, errors.New("Internal server error")
+		}
 	}
 
 	if in.Name == "" && in.Email == "" && in.Password == "" {

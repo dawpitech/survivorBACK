@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/juju/errors"
+	"gorm.io/gorm"
 	"reflect"
 	"time"
 )
@@ -26,11 +27,11 @@ func GetStartup(_ *gin.Context, in *routes.GetStartupRequest) (*models.StartupDe
 
 	var startup models.StartupDetail
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("Founders").Find(&startup); rst.Error != nil {
-		return nil, errors.New("Internal server error")
-	}
-
-	if startup.UUID == "" {
-		return nil, errors.NewNotFound(nil, "Startup not found")
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.NewUserNotFound(nil, "Startup not found")
+		} else {
+			return nil, errors.New("Internal server error")
+		}
 	}
 
 	return &startup, nil
@@ -38,8 +39,12 @@ func GetStartup(_ *gin.Context, in *routes.GetStartupRequest) (*models.StartupDe
 
 func CreateNewStartup(_ *gin.Context, in *routes.StartupCreationRequest) (*models.StartupDetail, error) {
 	var startupFound models.StartupDetail
-	if findResult := initializers.DB.Where("email=?", in.Email).Find(&startupFound); findResult.Error != nil {
-		return nil, errors.New("Internal server error")
+	if rst := initializers.DB.Where("email=?", in.Email).Find(&startupFound); rst.Error == nil {
+		return nil, errors.NewAlreadyExists(nil, "Email already used")
+	} else {
+		if !errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.New("Internal server error")
+		}
 	}
 
 	if startupFound.UUID != "" {
@@ -82,11 +87,11 @@ func DeleteStartup(_ *gin.Context, in *routes.DeleteStartupRequest) error {
 
 	var startupFound models.StartupDetail
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&startupFound); rst.Error != nil {
-		return errors.New("Internal server error")
-	}
-
-	if startupFound.UUID == "" {
-		return errors.NewUserNotFound(nil, "Startup not found")
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return errors.NewUserNotFound(nil, "Startup not found")
+		} else {
+			return errors.New("Internal server error")
+		}
 	}
 
 	if rst := initializers.DB.Delete(&startupFound); rst.Error != nil {
@@ -102,11 +107,11 @@ func UpdateStartup(_ *gin.Context, in *routes.UpdateStartupRequest) (*models.Sta
 
 	var startupFound models.StartupDetail
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("Founders").First(&startupFound); rst.Error != nil {
-		return nil, errors.New("Internal server error")
-	}
-
-	if startupFound.UUID == "" {
-		return nil, errors.NewUserNotFound(nil, "Startup not found")
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.NewUserNotFound(nil, "Startup not found")
+		} else {
+			return nil, errors.New("Internal server error")
+		}
 	}
 
 	updates := make(map[string]interface{})
