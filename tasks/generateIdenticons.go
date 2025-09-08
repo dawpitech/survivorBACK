@@ -28,7 +28,7 @@ func generatePP(user *models.User) {
 		UserUUID: user.UUID,
 		Picture:  buf.Bytes(),
 	}
-	if err := initializers.DB.Create(&userPicture); err != nil {
+	if err := initializers.DB.Create(&userPicture); err.Error != nil {
 		fmt.Println(err.Error)
 		return
 	}
