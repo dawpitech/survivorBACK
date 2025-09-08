@@ -28,7 +28,7 @@ func ResetUserPicture(user *models.User) {
 		UserUUID: user.UUID,
 		Picture:  buf.Bytes(),
 	}
-	if err := initializers.DB.Create(&userPicture); err.Error != nil {
+	if err := initializers.DB.Save(&userPicture); err.Error != nil {
 		fmt.Println(err.Error)
 		return
 	}
