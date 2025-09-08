@@ -118,7 +118,7 @@ func UpdateUser(_ *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUse
 	}
 
 	if in.Name == "" && in.Email == "" && in.Password == "" {
-		return nil, errors.NewNotValid(nil, "Invalid elements")
+		return nil, errors.NewNotValid(nil, "Invalid body")
 	}
 
 	updates := make(map[string]interface{})

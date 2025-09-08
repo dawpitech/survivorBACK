@@ -230,7 +230,25 @@ func main() {
 		tonic.Handler(controllers.GetStartup, 200),
 	)
 	startupRoutes.DELETE("/:uuid", nil, controllers.DeleteStartup)
-	startupRoutes.PATCH("/:uuid", nil, controllers.UpdateStartup)
+	startupRoutes.PATCH(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Update the startup with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Startup not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.UpdateStartup, 200),
+	)
 
 	fizzRouter.Generator().SetSecuritySchemes(map[string]*openapi.SecuritySchemeOrRef{
 		"bearerAuth": {

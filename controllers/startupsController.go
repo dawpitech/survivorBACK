@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/juju/errors"
 	"net/http"
+	"reflect"
 	"time"
 )
 
@@ -93,34 +94,42 @@ func DeleteStartup(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func UpdateStartup(c *gin.Context) {
-	uuidParam := c.Param("uuid")
-
-	if uuidParam == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID"})
-		return
+func UpdateStartup(_ *gin.Context, in *routes.UpdateStartupRequest) (*models.StartupDetail, error) {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return nil, errors.NewNotValid(nil, "Invalid UUID")
 	}
 
 	var startupFound models.StartupDetail
-	if rst := initializers.DB.Where("uuid=?", uuidParam).Find(&startupFound); rst.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Unknown UUID"})
-		return
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("Founders").First(&startupFound); rst.Error != nil {
+		return nil, errors.NewUserNotFound(nil, "Startup not found")
 	}
 
-	var updates map[string]interface{}
-	if err := c.ShouldBindJSON(&updates); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid body"})
-		return
+	updates := make(map[string]interface{})
+
+	val := reflect.ValueOf(*in)
+	typ := reflect.TypeOf(*in)
+	hasUpdate := false
+
+	for i := 0; i < val.NumField(); i++ {
+		field := typ.Field(i)
+		jsonTag := field.Tag.Get("json")
+		if jsonTag == "" || jsonTag == "-" || jsonTag == "uuid" {
+			continue
+		}
+		fieldValue := val.Field(i)
+		if fieldValue.Kind() == reflect.String && fieldValue.String() != "" {
+			hasUpdate = true
+			updates[jsonTag] = fieldValue.String()
+		}
 	}
 
-	delete(updates, "uuid")
-	delete(updates, "id")
-	delete(updates, "created_at")
-
-	if err := initializers.DB.Model(&startupFound).Updates(updates); err.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+	if !hasUpdate {
+		return nil, errors.NewNotValid(nil, "Invalid body")
 	}
 
-	c.Status(http.StatusOK)
+	if err := initializers.DB.Model(&startupFound).Updates(updates).Error; err != nil {
+		return nil, errors.New("Internal server error")
+	}
+
+	return &startupFound, nil
 }
