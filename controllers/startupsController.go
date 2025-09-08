@@ -27,7 +27,11 @@ func GetStartup(_ *gin.Context, in *routes.GetStartupRequest) (*models.StartupDe
 
 	var startup models.StartupDetail
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("Founders").Find(&startup); rst.Error != nil {
-		return nil, errors.NewUserNotFound(nil, "Startup not found")
+		return nil, errors.New("Internal server error")
+	}
+
+	if startup.UUID == "" {
+		return nil, errors.NewNotFound(nil, "Startup not found")
 	}
 
 	return &startup, nil

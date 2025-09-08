@@ -51,7 +51,11 @@ func GetUser(_ *gin.Context, in *routes.GetUserRequest) (*models.PublicUser, err
 
 	var user models.User
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&user); rst.Error != nil {
-		return nil, errors.NewUserNotFound(nil, "User not found")
+		return nil, errors.New("Internal server error")
+	}
+
+	if user.UUID == "" {
+		return nil, errors.NewNotFound(nil, "User not found")
 	}
 
 	userFoundPublic := user.GetPublicUser()
