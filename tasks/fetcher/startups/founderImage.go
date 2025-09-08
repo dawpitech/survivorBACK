@@ -7,8 +7,6 @@ import (
 	"net/url"
 	"os"
 
-	"FranceDeveloppe/JEB-backend/initializers"
-	"FranceDeveloppe/JEB-backend/models"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/utils"
 )
 
@@ -48,43 +46,6 @@ func getFounderImage(entrypoint *url.URL) (string, error) {
 	return founderImage, nil
 }
 
-func postFounderImage(founderId uint64, image string) error {
-	founder := models.Founder{}
-	result := initializers.DB.Where("id=?", founderId).First(&founder)
-	if result.Error != nil {
-		log.Printf("Error finding founder with ID %d: %s", founderId, result.Error)
-		return result.Error
-	}
-
-	imageBytes := []byte(image)
-
-	founderPicture := models.FounderPicture{
-		FounderUUID: founder.UUID,
-		Picture:     imageBytes,
-	}
-
-	var existingPicture models.FounderPicture
-	var counter int64
-	result = initializers.DB.Table("founder_pictures").Where("founder_uuid=?", founder.UUID).Count(&counter)
-
-	if counter == 0 {
-		result = initializers.DB.Create(&founderPicture)
-		if result.Error != nil {
-			log.Printf("Error creating founder picture for founder %s: %s", founder.UUID, result.Error)
-			return result.Error
-		}
-		return nil
-	}
-
-	result = initializers.DB.Model(&existingPicture).Where("founder_uuid=?", founder.UUID).Update("picture", imageBytes)
-	if result.Error != nil {
-		log.Printf("Error updating founder picture for founder %s: %s", founder.UUID, result.Error)
-		return result.Error
-	}
-
-	return nil
-}
-
 func UpdateFounderImage(startupsId uint64, founderId uint64) (string, error) {
 	var err error = nil
 	var founderImage string
@@ -99,6 +60,5 @@ func UpdateFounderImage(startupsId uint64, founderId uint64) (string, error) {
 		return founderImage, err
 	}
 
-	postFounderImage(founderId, founderImage)
 	return founderImage, nil
 }

@@ -13,11 +13,4 @@ type Investor struct {
 	Description     *string `json:"description"`
 	InvestorType    *string `json:"investor_type"`
 	InvestmentFocus *string `json:"investment_focus"`
-
-	InvestorPicture *InvestorPicture `json:"investor_picture" gorm:"foreignKey:InvestorUUID;references:UUID"`
-}
-
-type InvestorPicture struct {
-	InvestorUUID string `json:"investor_uuid" gorm:"type:uuid;primary_key"`
-	Picture      []byte `json:"picture" gorm:"type:bytea"`
 }

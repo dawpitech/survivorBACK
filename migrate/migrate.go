@@ -23,8 +23,6 @@ func main() {
 		&models.Partner{},
 		&models.NewsDetails{},
 		&models.UserPicture{},
-		&models.FounderPicture{},
-		&models.InvestorPicture{},
 		&models.NewsPicture{},
 		&models.Event{},
 		&models.EventPicture{},

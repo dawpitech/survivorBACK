@@ -1,8 +1,6 @@
 package investor
 
 import (
-	"FranceDeveloppe/JEB-backend/initializers"
-	"FranceDeveloppe/JEB-backend/models"
 	"FranceDeveloppe/JEB-backend/tasks/fetcher/utils"
 	"fmt"
 	"log"
@@ -44,43 +42,6 @@ func getSingleInvestorImage(entrypoint *url.URL) (string, error) {
 	return investorImage, nil
 }
 
-func postInvestorImage(investorId uint64, image string) error {
-	investor := models.Investor{}
-	result := initializers.DB.Where("id=?", investorId).First(&investor)
-	if result.Error != nil {
-		log.Printf("Error finding investor with ID %d: %s", investorId, result.Error)
-		return result.Error
-	}
-
-	imageBytes := []byte(image)
-
-	investorPicture := models.InvestorPicture{
-		InvestorUUID: investor.UUID,
-		Picture:  imageBytes,
-	}
-
-	var existingPicture models.InvestorPicture
-	var counter int64
-	result = initializers.DB.Table("investor_pictures").Where("investor_uuid=?", investor.UUID).Count(&counter)
-
-	if counter == 0 {
-		result = initializers.DB.Create(&investorPicture)
-		if result.Error != nil {
-			log.Printf("Error creating investor picture for investor %s: %s", investor.UUID, result.Error)
-			return result.Error
-		}
-		return nil
-	}
-
-	result = initializers.DB.Model(&existingPicture).Where("investor_uuid=?", investor.UUID).Update("picture", imageBytes)
-	if result.Error != nil {
-		log.Printf("Error updating investor picture for investor %s: %s", investor.UUID, result.Error)
-		return result.Error
-	}
-
-	return nil
-}
-
 func UpdateInvestorImage(investorId uint64) (string, error) {
 	var investorImage string
 
@@ -93,6 +54,5 @@ func UpdateInvestorImage(investorId uint64) (string, error) {
 	if err != nil {
 		return investorImage, err
 	}
-	postInvestorImage(investorId, investorImage)
 	return investorImage, nil
 }

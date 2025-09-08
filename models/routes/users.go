@@ -8,6 +8,7 @@ type UserCreationRequest struct {
 
 type GetUserRequest = GenericUUIDFromPath
 type GetUserPictureRequest = GenericUUIDFromPath
+type DeleteUserRequest = GenericUUIDFromPath
 
 type UpdateUserRequest struct {
 	UUID     string `path:"uuid" validate:"required"`
@@ -16,4 +17,7 @@ type UpdateUserRequest struct {
 	Password string `json:"password"`
 }
 
-type DeleteUserRequest = GetUserRequest
+type UpdateUserPictureRequest struct {
+	GenericUUIDFromPath
+	Picture []byte
+}
