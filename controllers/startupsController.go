@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/juju/errors"
-	"net/http"
 	"reflect"
 	"time"
 )
@@ -76,26 +75,24 @@ func CreateNewStartup(_ *gin.Context, in *routes.StartupCreationRequest) (*model
 	return &startup, nil
 }
 
-func DeleteStartup(c *gin.Context) {
-	uuidParam := c.Param("uuid")
-
-	if uuidParam == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID"})
-		return
+func DeleteStartup(_ *gin.Context, in *routes.DeleteStartupRequest) error {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return errors.NewNotValid(nil, "Invalid UUID")
 	}
 
 	var startupFound models.StartupDetail
-	if rst := initializers.DB.Where("uuid=?", uuidParam).Find(&startupFound); rst.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Unknown UUID"})
-		return
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&startupFound); rst.Error != nil {
+		return errors.New("Internal server error")
+	}
+
+	if startupFound.UUID == "" {
+		return errors.NewUserNotFound(nil, "Startup not found")
 	}
 
 	if rst := initializers.DB.Delete(&startupFound); rst.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
-		return
+		return errors.New("Internal server error")
 	}
-
-	c.Status(http.StatusOK)
+	return nil
 }
 
 func UpdateStartup(_ *gin.Context, in *routes.UpdateStartupRequest) (*models.StartupDetail, error) {

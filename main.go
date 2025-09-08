@@ -229,7 +229,25 @@ func main() {
 		},
 		tonic.Handler(controllers.GetStartup, 200),
 	)
-	startupRoutes.DELETE("/:uuid", nil, controllers.DeleteStartup)
+	startupRoutes.DELETE(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Delete the startup with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"User not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.DeleteStartup, 200),
+	)
 	startupRoutes.PATCH(
 		"/:uuid",
 		[]fizz.OperationOption{

@@ -1,6 +1,7 @@
 package routes
 
 type GetStartupRequest = GenericUUIDFromPath
+type DeleteStartupRequest = GenericUUIDFromPath
 
 type StartupCreationRequest struct {
 	Name  string `json:"name" binding:"required"`

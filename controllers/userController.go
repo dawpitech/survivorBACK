@@ -93,22 +93,24 @@ func CreateNewUser(_ *gin.Context, in *routes.UserCreationRequest) (*models.Publ
 	return &publicUser, nil
 }
 
-func DeleteUser(_ *gin.Context, in *routes.DeleteUserRequest) (*struct{}, error) {
+func DeleteUser(_ *gin.Context, in *routes.DeleteUserRequest) error {
 	if _, err := uuid.Parse(in.UUID); err != nil {
-		return nil, errors.NewNotValid(nil, "Invalid UUID")
+		return errors.NewNotValid(nil, "Invalid UUID")
 	}
 
 	var userFound models.User
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&userFound); rst.Error != nil {
-		return nil, errors.NewUserNotFound(nil, "User not found")
+		return errors.New("Internal server error")
+	}
+
+	if userFound.UUID == "" {
+		return errors.NewUserNotFound(nil, "User not found")
 	}
 
 	if rst := initializers.DB.Delete(&userFound); rst.Error != nil {
-		return nil, errors.New("Internal server error")
+		return errors.New("Internal server error")
 	}
-
-	var empty struct{}
-	return &empty, nil
+	return nil
 }
 
 func UpdateUser(_ *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUser, error) {
