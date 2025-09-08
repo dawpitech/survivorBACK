@@ -180,6 +180,13 @@ func main() {
 		},
 		tonic.Handler(controllers.UpdateUser, 200),
 	)
+	usersRoutes.GET(
+		"/:uuid/picture",
+		[]fizz.OperationOption{
+			fizz.Summary("Get user's profile picture"),
+		},
+		tonic.Handler(controllers.GetUserPicture, 200),
+	)
 
 	// Startup management routes
 	startupRoutes := globalRoutes.Group("/startups", "Startup access", "This group contains all startups endpoints")

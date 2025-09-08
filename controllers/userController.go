@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/juju/errors"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
 func GetAllUsers(_ *gin.Context, _ *struct{}) (*[]models.PublicUser, error) {
@@ -141,4 +142,24 @@ func UpdateUser(_ *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUse
 
 	publicUser := userFound.GetPublicUser()
 	return &publicUser, nil
+}
+
+func GetUserPicture(c *gin.Context, in *routes.GetUserPictureRequest) error {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return errors.NewNotValid(nil, "Invalid UUID")
+	}
+
+	var userFound models.User
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("UserPicture").First(&userFound); rst.Error != nil {
+		return errors.NewUserNotFound(nil, "User not found")
+	}
+
+	if userFound.UserPicture == nil || len(userFound.UserPicture.Picture) == 0 {
+		return errors.NewNotFound(nil, "User picture not found")
+	}
+
+	picture := userFound.UserPicture.Picture
+
+	c.Data(http.StatusOK, "image/png", picture)
+	return nil
 }

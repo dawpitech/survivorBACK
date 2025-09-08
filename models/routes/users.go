@@ -7,6 +7,7 @@ type UserCreationRequest struct {
 }
 
 type GetUserRequest = GenericUUIDFromPath
+type GetUserPictureRequest = GenericUUIDFromPath
 
 type UpdateUserRequest struct {
 	UUID     string `path:"uuid" validate:"required"`
