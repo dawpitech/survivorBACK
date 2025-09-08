@@ -4,12 +4,13 @@ import (
 	"FranceDeveloppe/JEB-backend/initializers"
 	"FranceDeveloppe/JEB-backend/models"
 	"FranceDeveloppe/JEB-backend/models/routes"
-	"bytes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/juju/errors"
 	"golang.org/x/crypto/bcrypt"
-	"image/png"
+	"gorm.io/gorm"
+	"io"
 	"net/http"
 )
 
@@ -159,11 +160,11 @@ func GetUserPicture(c *gin.Context, in *routes.GetUserPictureRequest) error {
 
 	var userFound models.User
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("UserPicture").First(&userFound); rst.Error != nil {
-		return errors.New("Internal server error")
-	}
-
-	if userFound.UUID == "" {
-		return errors.NewNotFound(nil, "User not found")
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return errors.NewNotFound(nil, "User not found")
+		} else {
+			return errors.New("Internal server error")
+		}
 	}
 
 	if userFound.UserPicture == nil || len(userFound.UserPicture.Picture) == 0 {
@@ -176,31 +177,45 @@ func GetUserPicture(c *gin.Context, in *routes.GetUserPictureRequest) error {
 	return nil
 }
 
-func UpdateUserPicture(_ *gin.Context, in *routes.UpdateUserPictureRequest) error {
-	if _, err := uuid.Parse(in.UUID); err != nil {
-		return errors.NewNotValid(nil, "Invalid UUID")
-	}
+func UpdateUserPicture(c *gin.Context) error {
+	userUUID := c.Param("uuid")
+	file, err := c.FormFile("picture")
 
-	var userFound models.User
-	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("UserPicture").First(&userFound); rst.Error != nil {
-		return errors.New("Internal server error")
-	}
-
-	if userFound.UUID == "" {
+	if userUUID == "" {
 		return errors.NewNotFound(nil, "User not found")
 	}
 
-	buffer := bytes.NewBuffer(in.Picture)
-	if _, err := png.Decode(buffer); err != nil {
-		return errors.NewNotValid(err, "Picture is not a valid PNG")
+	if err != nil {
+		fmt.Println(err.Error())
+		return errors.New("Internal server error")
+	}
+
+	var userFound models.User
+	if rst := initializers.DB.Where("uuid=?", userUUID).Preload("UserPicture").First(&userFound); rst.Error != nil {
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return errors.NewNotFound(nil, "User not found")
+		} else {
+			return errors.New("Internal server error")
+		}
+	}
+
+	openFile, openErr := file.Open()
+	if openErr != nil {
+		return errors.New("Internal server error")
+	}
+	defer func() { _ = openFile.Close() }()
+
+	fileBytes, readErr := io.ReadAll(openFile)
+	if readErr != nil {
+		return errors.New("Internal server error")
 	}
 
 	userPicture := models.UserPicture{
-		UserUUID: in.UUID,
-		Picture:  in.Picture,
+		UserUUID: userFound.UUID,
+		Picture:  fileBytes,
 	}
 
-	if err := initializers.DB.Save(&userPicture); err != nil {
+	if rst := initializers.DB.Save(&userPicture); rst.Error != nil {
 		return errors.New("Internal server error")
 	}
 	return nil
