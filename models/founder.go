@@ -10,7 +10,7 @@ type Founder struct {
 	StartupID   uint           `json:"startup_id"` // legacy
 	Startup     *StartupDetail `json:"startup" gorm:"foreignKey:StartupUUID;references:UUID"`
 
-	FounderPicture *FounderPicture `json:"founder_picture" gorm:"foreignKey:FounderUUID;references:UUID"`
+	FounderPicture *FounderPicture `json:"-" gorm:"foreignKey:FounderUUID;references:UUID"`
 }
 
 type FounderPicture struct {

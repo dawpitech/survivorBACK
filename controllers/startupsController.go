@@ -12,11 +12,11 @@ import (
 )
 
 func GetAllStartups(_ *gin.Context, _ *struct{}) (*[]models.StartupDetail, error) {
-	var users []models.StartupDetail
-	if result := initializers.DB.Find(&users); result.Error != nil {
+	var startups []models.StartupDetail
+	if result := initializers.DB.Find(&startups); result.Error != nil {
 		return nil, errors.New("Internal server error")
 	}
-	return &users, nil
+	return &startups, nil
 }
 
 func GetStartup(_ *gin.Context, in *routes.GetStartupRequest) (*models.StartupDetail, error) {
@@ -25,7 +25,7 @@ func GetStartup(_ *gin.Context, in *routes.GetStartupRequest) (*models.StartupDe
 	}
 
 	var startup models.StartupDetail
-	if rst := initializers.DB.Where("uuid=?", in.UUID).Find(&startup); rst.Error != nil {
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("Founders").Find(&startup); rst.Error != nil {
 		return nil, errors.NewUserNotFound(nil, "Startup not found")
 	}
 
@@ -67,7 +67,7 @@ func CreateNewStartup(_ *gin.Context, in *routes.StartupCreationRequest) (*model
 	if err := initializers.DB.Create(&startup); err.Error != nil {
 		return nil, errors.New("Internal server error")
 	}
-	
+
 	return &startup, nil
 }
 
