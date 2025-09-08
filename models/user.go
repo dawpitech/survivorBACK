@@ -2,7 +2,7 @@ package models
 
 type User struct {
 	UUID string `json:"uuid" gorm:"type:uuid;primary_key"`
-	ID   *uint  `json:"id" gorm:"unique;index"` // legacy
+	ID   *uint  `json:"-" gorm:"unique;index"` // legacy
 
 	Name     string  `json:"name"`
 	Email    string  `json:"email" gorm:"unique;not null;default:null"`
@@ -10,11 +10,11 @@ type User struct {
 	Role     string  `json:"role"`
 
 	FounderUUID *string  `json:"founder_uuid"`
-	FounderID   *uint    `json:"founder_id"` // legacy
+	FounderID   *uint    `json:"-"` // legacy
 	Founder     *Founder `json:"founder" gorm:"foreignKey:FounderUUID;references:UUID"`
 
 	InvestorUUID *string   `json:"investor_uuid"`
-	InvestorID   *uint     `json:"investor_id"` // legacy
+	InvestorID   *uint     `json:"-"` // legacy
 	Investor     *Investor `json:"investor" gorm:"foreignKey:InvestorUUID;references:UUID"`
 
 	UserPicture *UserPicture `json:"user_picture" gorm:"foreignKey:UserUUID;references:UUID"`

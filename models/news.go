@@ -2,7 +2,7 @@ package models
 
 type News struct {
 	UUID      string  `json:"uuid" gorm:"type:uuid;primary_key"`
-	ID        *uint   `json:"id" gorm:"unique;index"` // legacy
+	ID        *uint   `json:"-" gorm:"unique;index"` // legacy
 	Location  *string `json:"location"`
 	Title     string  `json:"title"`
 	Category  *string `json:"category"`
@@ -11,7 +11,7 @@ type News struct {
 
 type NewsDetails struct {
 	News
-	Description string `json:"description"`
+	Description string       `json:"description"`
 	NewsPicture *NewsPicture `json:"news_picture" gorm:"foreignKey:NewsUUID;references:UUID"`
 }
 
