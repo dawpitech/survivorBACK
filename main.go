@@ -191,6 +191,7 @@ func main() {
 		"/:uuid/picture",
 		[]fizz.OperationOption{
 			fizz.Summary("Update the user's profile picture"),
+			fizz.InputModel(routes.GenericUUIDFromPath{}),
 		},
 		tonic.Handler(controllers.UpdateUserPicture, 200),
 	)
