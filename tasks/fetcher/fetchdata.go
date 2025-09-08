@@ -18,14 +18,14 @@ func updateStartups() {
 	for startupList != nil {
 		startIndex += nbToFetch
 		if err != nil {
-			log.Println("Unable to update db for startup: ", err)
+			//TODO: better log policy
 			break
 		}
 
 		for _, startup := range startupList {
 			startupDetail, err := startups.UpdateSingleStartups(uint64(*startup.ID))
 			if err != nil {
-				log.Println("Unable to update db for startup: ", err)
+				//TODO: better log policy
 			}
 
 			for _, founder := range startupDetail.Founders {
@@ -47,7 +47,7 @@ func updateInvestors() {
 			log.Println("Unable to update db for investors: ", err)
 			continue
 		}
-		for _, singleInvestor := range(investorList) {
+		for _, singleInvestor := range investorList {
 			investor.UpdateInvestorImage(uint64(*singleInvestor.ID))
 		}
 		investorList, err = investor.UpdateInvestor(uint64(startIndex), uint64(nbToFetch))
@@ -80,7 +80,7 @@ func updateEvent() {
 			log.Println("Unable to update db for event: ", err)
 			continue
 		}
-		for _, singleEvent := range(eventList) {
+		for _, singleEvent := range eventList {
 			event.UpdateEventImage(uint64(*singleEvent.ID))
 		}
 		eventList, err = event.UpdateEvent(uint64(startIndex), uint64(nbToFetch))
@@ -93,7 +93,7 @@ func updateUsers() {
 		log.Println("Unable to update db for user: ", err)
 		return
 	}
-	for _, singleUser := range(userList) {
+	for _, singleUser := range userList {
 		user.UpdateUserImage(uint64(singleUser.ID))
 	}
 }
