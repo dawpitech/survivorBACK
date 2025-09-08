@@ -105,6 +105,10 @@ func UpdateStartup(_ *gin.Context, in *routes.UpdateStartupRequest) (*models.Sta
 
 	var startupFound models.StartupDetail
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("Founders").First(&startupFound); rst.Error != nil {
+		return nil, errors.New("Internal server error")
+	}
+
+	if startupFound.UUID == "" {
 		return nil, errors.NewUserNotFound(nil, "Startup not found")
 	}
 
