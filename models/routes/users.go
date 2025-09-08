@@ -19,5 +19,5 @@ type UpdateUserRequest struct {
 
 type UpdateUserPictureRequest struct {
 	GenericUUIDFromPath
-	Picture []byte
+	Picture []byte `json:"picture" validate:"required"`
 }

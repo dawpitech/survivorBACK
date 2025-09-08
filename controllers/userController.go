@@ -4,10 +4,12 @@ import (
 	"FranceDeveloppe/JEB-backend/initializers"
 	"FranceDeveloppe/JEB-backend/models"
 	"FranceDeveloppe/JEB-backend/models/routes"
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/juju/errors"
 	"golang.org/x/crypto/bcrypt"
+	"image/png"
 	"net/http"
 )
 
@@ -157,7 +159,11 @@ func GetUserPicture(c *gin.Context, in *routes.GetUserPictureRequest) error {
 
 	var userFound models.User
 	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("UserPicture").First(&userFound); rst.Error != nil {
-		return errors.NewUserNotFound(nil, "User not found")
+		return errors.New("Internal server error")
+	}
+
+	if userFound.UUID == "" {
+		return errors.NewNotFound(nil, "User not found")
 	}
 
 	if userFound.UserPicture == nil || len(userFound.UserPicture.Picture) == 0 {
@@ -167,5 +173,35 @@ func GetUserPicture(c *gin.Context, in *routes.GetUserPictureRequest) error {
 	picture := userFound.UserPicture.Picture
 
 	c.Data(http.StatusOK, "image/png", picture)
+	return nil
+}
+
+func UpdateUserPicture(_ *gin.Context, in *routes.UpdateUserPictureRequest) error {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return errors.NewNotValid(nil, "Invalid UUID")
+	}
+
+	var userFound models.User
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("UserPicture").First(&userFound); rst.Error != nil {
+		return errors.New("Internal server error")
+	}
+
+	if userFound.UUID == "" {
+		return errors.NewNotFound(nil, "User not found")
+	}
+
+	buffer := bytes.NewBuffer(in.Picture)
+	if _, err := png.Decode(buffer); err != nil {
+		return errors.NewNotValid(err, "Picture is not a valid PNG")
+	}
+
+	userPicture := models.UserPicture{
+		UserUUID: in.UUID,
+		Picture:  in.Picture,
+	}
+
+	if err := initializers.DB.Save(&userPicture); err != nil {
+		return errors.New("Internal server error")
+	}
 	return nil
 }
