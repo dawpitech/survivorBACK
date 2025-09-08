@@ -1,7 +1,7 @@
 package legacy
 
 type PartnerLegacy struct {
-	ID              uint   `json:"id"`
+	ID              uint    `json:"id"`
 	Name            string  `json:"name"`
 	LegalStatus     *string `json:"legal_status"`
 	Address         *string `json:"address"`

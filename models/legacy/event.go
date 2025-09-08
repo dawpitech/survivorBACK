@@ -1,7 +1,7 @@
 package legacy
 
 type EventLegacy struct {
-	ID   uint  `json:"id"` // legacy
+	ID uint `json:"id"` // legacy
 
 	Name           string  `json:"name"`
 	Date           *string `json:"date"`

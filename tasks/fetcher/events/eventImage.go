@@ -56,7 +56,7 @@ func postEventImage(eventId uint64, image string) error {
 
 	eventPicture := models.EventPicture{
 		EventUUID: event.UUID,
-		Picture:  imageBytes,
+		Picture:   imageBytes,
 	}
 
 	var existingPicture models.EventPicture
@@ -96,4 +96,3 @@ func UpdateEventImage(eventId uint64) (string, error) {
 	postEventImage(eventId, eventImage)
 	return eventImage, nil
 }
-

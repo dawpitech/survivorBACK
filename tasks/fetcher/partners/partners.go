@@ -59,7 +59,7 @@ func postPartners(partnersLegacy []legacy.PartnerLegacy) []models.Partner {
 			Phone:           partnerLegacy.Phone,
 			CreatedAt:       partnerLegacy.CreatedAt,
 			Description:     partnerLegacy.Description,
-			PartnershipType:    partnerLegacy.PartnershipType,
+			PartnershipType: partnerLegacy.PartnershipType,
 		}
 		var counter int64
 		initializers.DB.Table("partners").Where("id=?", *partner.ID).Count(&counter)

@@ -50,12 +50,12 @@ func postEvent(eventsLegacy []legacy.EventLegacy) []models.Event {
 	var events []models.Event
 	for _, eventLegacy := range eventsLegacy {
 		event := models.Event{
-			UUID:            uuid.New().String(),
-			ID:              &eventLegacy.ID,
-			Name:            eventLegacy.Name,
-			Location: eventLegacy.Location,
-			Description:     eventLegacy.Description,
-			EventType:    eventLegacy.EventType,
+			UUID:           uuid.New().String(),
+			ID:             &eventLegacy.ID,
+			Name:           eventLegacy.Name,
+			Location:       eventLegacy.Location,
+			Description:    eventLegacy.Description,
+			EventType:      eventLegacy.EventType,
 			TargetAudience: eventLegacy.TargetAudience,
 		}
 		var counter int64
@@ -85,4 +85,3 @@ func UpdateEvent(skip uint64, limit uint64) ([]models.Event, error) {
 	events := postEvent(eventsLegacy)
 	return events, err
 }
-

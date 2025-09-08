@@ -96,4 +96,3 @@ func UpdateNewsImage(newsId uint64) (string, error) {
 	postNewsImage(newsId, newsImage)
 	return newsImage, nil
 }
-

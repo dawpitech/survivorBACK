@@ -1,7 +1,7 @@
 package legacy
 
 type NewsLegacy struct {
-	ID        uint   `json:"id"`
+	ID        uint    `json:"id"`
 	Location  *string `json:"location"`
 	Title     string  `json:"title"`
 	Category  *string `json:"category"`

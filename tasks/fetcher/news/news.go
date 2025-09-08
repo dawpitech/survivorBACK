@@ -51,11 +51,11 @@ func postNewsList(news []legacy.NewsLegacy) []models.News {
 	for _, newsLegacy := range news {
 		news := models.NewsDetails{
 			News: models.News{
-				UUID:        uuid.New().String(),
-				ID:          &newsLegacy.ID,
-				Location: newsLegacy.Location,
-				Title: newsLegacy.Title,
-				Category: newsLegacy.Category,
+				UUID:      uuid.New().String(),
+				ID:        &newsLegacy.ID,
+				Location:  newsLegacy.Location,
+				Title:     newsLegacy.Title,
+				Category:  newsLegacy.Category,
 				StartupId: newsLegacy.StartupId,
 			},
 		}
