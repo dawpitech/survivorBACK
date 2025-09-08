@@ -6,7 +6,7 @@ type Founder struct {
 
 	Name string `json:"name"`
 
-	StartupUUID string         `json:"startup_uuid"`
-	StartupID   uint           `json:"-"` // legacy
+	StartupUUID *string        `json:"startup_uuid"`
+	StartupID   *uint          `json:"-"` // legacy
 	Startup     *StartupDetail `json:"startup,omitempty" gorm:"foreignKey:StartupUUID;references:UUID"`
 }

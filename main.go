@@ -283,6 +283,80 @@ func main() {
 		tonic.Handler(controllers.UpdateStartup, 200),
 	)
 
+	// Founders management routes
+	founderRoutes := globalRoutes.Group("/founders", "Founders access", "This group contains all founders endpoints")
+	founderRoutes.GET(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Get list of all founders"),
+		},
+		tonic.Handler(controllers.GetAllFounders, 200),
+	)
+	founderRoutes.POST(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Create a new founder"),
+		},
+		tonic.Handler(controllers.CreateNewFounder, 200),
+	)
+	founderRoutes.GET(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the founder with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Founder not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetFounder, 200),
+	)
+	founderRoutes.DELETE(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Delete the founder with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Founder not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.DeleteFounder, 200),
+	)
+	founderRoutes.PATCH(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Update the founder with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Founder not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.UpdateFounder, 200),
+	)
+
 	fizzRouter.Generator().SetSecuritySchemes(map[string]*openapi.SecuritySchemeOrRef{
 		"bearerAuth": {
 			SecurityScheme: &openapi.SecurityScheme{
