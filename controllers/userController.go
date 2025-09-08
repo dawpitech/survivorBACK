@@ -4,6 +4,7 @@ import (
 	"FranceDeveloppe/JEB-backend/initializers"
 	"FranceDeveloppe/JEB-backend/models"
 	"FranceDeveloppe/JEB-backend/models/routes"
+	"FranceDeveloppe/JEB-backend/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -218,5 +219,23 @@ func UpdateUserPicture(c *gin.Context) error {
 	if rst := initializers.DB.Save(&userPicture); rst.Error != nil {
 		return errors.New("Internal server error")
 	}
+	return nil
+}
+
+func ResetUserPicture(_ *gin.Context, in *routes.ResetUserPictureRequest) error {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return errors.NewNotValid(nil, "Invalid UUID")
+	}
+
+	var userFound models.User
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("UserPicture").First(&userFound); rst.Error != nil {
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return errors.NewNotFound(nil, "User not found")
+		} else {
+			return errors.New("Internal server error")
+		}
+	}
+
+	utils.ResetUserPicture(&userFound)
 	return nil
 }

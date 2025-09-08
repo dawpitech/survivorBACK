@@ -183,16 +183,23 @@ func main() {
 	usersRoutes.GET(
 		"/:uuid/picture",
 		[]fizz.OperationOption{
-			fizz.Summary("Get user's profile picture"),
+			fizz.Summary("Get the user's profile picture"),
 		},
 		tonic.Handler(controllers.GetUserPicture, 200),
 	)
 	usersRoutes.PUT(
 		"/:uuid/picture",
 		[]fizz.OperationOption{
-			fizz.Summary("Update user's profile picture"),
+			fizz.Summary("Update the user's profile picture"),
 		},
 		tonic.Handler(controllers.UpdateUserPicture, 200),
+	)
+	usersRoutes.DELETE(
+		"/:uuid/picture",
+		[]fizz.OperationOption{
+			fizz.Summary("Reset the user's profile picture"),
+		},
+		tonic.Handler(controllers.ResetUserPicture, 200),
 	)
 
 	// Startup management routes
