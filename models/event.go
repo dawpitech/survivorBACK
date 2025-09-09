@@ -11,7 +11,7 @@ type Event struct {
 	EventType      *string `json:"event_type"`
 	TargetAudience *string `json:"target_audience"`
 
-	EventPicture *EventPicture `json:"event_picture" gorm:"foreignKey:EventUUID;references:UUID"`
+	EventPicture *EventPicture `json:"-" gorm:"foreignKey:EventUUID;references:UUID"`
 }
 
 type EventPicture struct {
