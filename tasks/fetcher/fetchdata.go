@@ -12,7 +12,7 @@ import (
 
 func updateStartups() {
 	startIndex := 0
-	nbToFetch := 10
+	nbToFetch := 100
 	startupList, err := startups.UpdateStartupList(uint64(startIndex), uint64(nbToFetch))
 
 	for startupList != nil {
@@ -38,7 +38,7 @@ func updateStartups() {
 
 func updateInvestors() {
 	startIndex := 0
-	nbToFetch := 10
+	nbToFetch := 100
 	investorList, err := investor.UpdateInvestor(uint64(startIndex), uint64(nbToFetch))
 
 	for investorList != nil {
@@ -56,7 +56,7 @@ func updateInvestors() {
 
 func updatePartners() {
 	startIndex := 0
-	nbToFetch := 10
+	nbToFetch := 100
 	partnerList, err := partner.UpdatePartners(uint64(startIndex), uint64(nbToFetch))
 
 	for partnerList != nil {
@@ -71,7 +71,7 @@ func updatePartners() {
 
 func updateEvent() {
 	startIndex := 0
-	nbToFetch := 10
+	nbToFetch := 100
 	eventList, err := event.UpdateEvent(uint64(startIndex), uint64(nbToFetch))
 
 	for eventList != nil {
@@ -100,7 +100,7 @@ func updateUsers() {
 
 func updateNews() {
 	startIndex := 0
-	nbToFetch := 10
+	nbToFetch := 100
 	newsList, err := news.UpdateNewsList(uint64(startIndex), uint64(nbToFetch))
 
 	for newsList != nil {
