@@ -11,8 +11,9 @@ type News struct {
 
 type NewsDetails struct {
 	News
-	Description string       `json:"description"`
-	NewsPicture *NewsPicture `json:"news_picture" gorm:"foreignKey:NewsUUID;references:UUID"`
+	Description string `json:"description"`
+
+	NewsPicture *NewsPicture `json:"-" gorm:"foreignKey:NewsUUID;references:UUID"`
 }
 
 type NewsPicture struct {

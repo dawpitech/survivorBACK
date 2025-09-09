@@ -43,7 +43,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 	)
 
 	// User management routes
-	usersRoutes := globalRoutes.Group("/users", "User access", "This group contains all users endpoints")
+	usersRoutes := globalRoutes.Group("/users", "User", "This group contains all users endpoints")
 	usersRoutes.GET(
 		"/",
 		[]fizz.OperationOption{
@@ -168,7 +168,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 	)
 
 	// Startup management routes
-	startupRoutes := globalRoutes.Group("/startups", "Startup access", "This group contains all startups endpoints")
+	startupRoutes := globalRoutes.Group("/startups", "Startup", "This group contains all startups endpoints")
 	startupRoutes.GET(
 		"/",
 		[]fizz.OperationOption{
@@ -248,7 +248,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 	)
 
 	// Founders management routes
-	founderRoutes := globalRoutes.Group("/founders", "Founders access", "This group contains all founders endpoints")
+	founderRoutes := globalRoutes.Group("/founders", "Founders", "This group contains all founders endpoints")
 	founderRoutes.GET(
 		"/",
 		[]fizz.OperationOption{
@@ -322,7 +322,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 	)
 
 	// Investors management routes
-	investorRoutes := globalRoutes.Group("/investors", "Investors access", "This group contains all investors endpoints")
+	investorRoutes := globalRoutes.Group("/investors", "Investors", "This group contains all investors endpoints")
 	investorRoutes.GET(
 		"/",
 		[]fizz.OperationOption{
@@ -395,8 +395,8 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		tonic.Handler(controllers.UpdateInvestor, 200),
 	)
 
-	// User management routes
-	eventsRoute := globalRoutes.Group("/events", "Events access", "This group contains all events endpoints")
+	// Events management routes
+	eventsRoute := globalRoutes.Group("/events", "Events", "This group contains all events endpoints")
 	eventsRoute.GET(
 		"/",
 		[]fizz.OperationOption{
@@ -495,6 +495,102 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			fizz.Summary("Reset the event picture"),
 		},
 		tonic.Handler(controllers.ResetEventPicture, 200),
+	)
+
+	// News management routes
+	newsRoute := globalRoutes.Group("/news", "News", "This group contains all news endpoints")
+	newsRoute.GET(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Get list of all news"),
+		},
+		tonic.Handler(controllers.GetAllNews, 200),
+	)
+	newsRoute.POST(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Register a new news"),
+		},
+		tonic.Handler(controllers.CreateNewNews, 200),
+	)
+	newsRoute.GET(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the news with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"News not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetNews, 200),
+	)
+	newsRoute.DELETE(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Delete the news with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"News not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.DeleteNews, 200),
+	)
+	newsRoute.PATCH(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Update the news with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"News not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.UpdateNews, 200),
+	)
+	newsRoute.GET(
+		"/:uuid/picture",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the news picture"),
+		},
+		tonic.Handler(controllers.GetNewsPicture, 200),
+	)
+	newsRoute.PUT(
+		"/:uuid/picture",
+		[]fizz.OperationOption{
+			fizz.Summary("Update the news picture"),
+			fizz.InputModel(routes.GenericUUIDFromPath{}),
+		},
+		tonic.Handler(controllers.UpdateNewsPicture, 200),
+	)
+	newsRoute.DELETE(
+		"/:uuid/picture",
+		[]fizz.OperationOption{
+			fizz.Summary("Reset the news picture"),
+		},
+		tonic.Handler(controllers.ResetNewsPicture, 200),
 	)
 
 	fizzRouter.Generator().SetSecuritySchemes(map[string]*openapi.SecuritySchemeOrRef{
