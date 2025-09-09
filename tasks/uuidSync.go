@@ -6,6 +6,23 @@ import (
 	"fmt"
 )
 
+func syncNewsUUID(news *models.News) {
+	if news.StartupUUID != nil {
+		return
+	}
+
+	var startup models.StartupDetail
+	initializers.DB.Where("id=?", news.StartupID).Find(&startup)
+
+	if startup.UUID == "" {
+		return
+	}
+	if rst := initializers.DB.Model(&news).Update("startup_uuid", startup.UUID); rst.Error != nil {
+		fmt.Printf("Couldn't update db with re-sync startup UUID on news %s\n", news.UUID)
+		return
+	}
+}
+
 func syncInvestorUUIDs(user *models.User) {
 	if user.InvestorID == nil || user.InvestorUUID != nil {
 		return
@@ -40,14 +57,22 @@ func syncFounderUUIDs(user *models.User) {
 
 func SyncUUIDs() {
 	var users []models.User
+	var news []models.News
 
 	if result := initializers.DB.Find(&users); result.Error != nil {
 		fmt.Printf("Couldn't fetch users from db to run UUID Sync Task!\n%s\n", result.Error.Error())
+		return
+	}
+	if result := initializers.DB.Find(&news); result.Error != nil {
+		fmt.Printf("Couldn't fetch news from db to run UUID Sync Task!\n%s\n", result.Error.Error())
 		return
 	}
 
 	for _, user := range users {
 		syncInvestorUUIDs(&user)
 		syncFounderUUIDs(&user)
+	}
+	for _, singleNews := range news {
+		syncNewsUUID(&singleNews)
 	}
 }

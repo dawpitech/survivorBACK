@@ -10,10 +10,11 @@ type NewsUpdateRequest = struct {
 	Title       *string `json:"title"`
 	Location    *string `json:"location"`
 	Category    *string `json:"category"`
-	StartupId   *uint   `json:"startup_id"`
+	StartupUUID *string `json:"startup_uuid"`
 	Description *string `json:"description"`
 }
 
 type NewsCreationRequest = struct {
-	Title string `json:"title"`
+	Title       string `json:"title"`
+	StartupUUID string `json:"startup_uuid"`
 }

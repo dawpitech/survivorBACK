@@ -50,11 +50,12 @@ func postNewsDetail(newsLegacy legacy.NewsDetailsLegacy) error {
 
 	news := models.NewsDetails{
 		News: models.News{
-			ID:        &newsLegacy.ID,
-			Location:  newsLegacy.Location,
-			Title:     newsLegacy.Title,
-			Category:  newsLegacy.Category,
-			StartupId: newsLegacy.StartupId,
+			ID:          &newsLegacy.ID,
+			Location:    newsLegacy.Location,
+			Title:       newsLegacy.Title,
+			Category:    newsLegacy.Category,
+			StartupID:   newsLegacy.StartupId,
+			StartupUUID: nil,
 		},
 		Description: newsLegacy.Description,
 	}

@@ -43,12 +43,13 @@ func GetNews(_ *gin.Context, in *routes.GetNewsRequest) (*models.NewsDetails, er
 func CreateNewNews(_ *gin.Context, in *routes.NewsCreationRequest) (*models.NewsDetails, error) {
 	news := models.NewsDetails{
 		News: models.News{
-			UUID:      uuid.New().String(),
-			ID:        nil,
-			Location:  nil,
-			Title:     in.Title,
-			Category:  nil,
-			StartupId: nil,
+			UUID:        uuid.New().String(),
+			ID:          nil,
+			Location:    nil,
+			Title:       in.Title,
+			Category:    nil,
+			StartupID:   nil,
+			StartupUUID: &in.StartupUUID,
 		},
 		Description: "",
 		NewsPicture: nil,

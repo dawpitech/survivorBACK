@@ -1,12 +1,14 @@
 package models
 
 type News struct {
-	UUID      string  `json:"uuid" gorm:"type:uuid;primary_key"`
-	ID        *uint   `json:"-" gorm:"unique;index"` // legacy
-	Location  *string `json:"location"`
-	Title     string  `json:"title"`
-	Category  *string `json:"category"`
-	StartupId *uint   `json:"startup_id"`
+	UUID     string  `json:"uuid" gorm:"type:uuid;primary_key"`
+	ID       *uint   `json:"-" gorm:"unique;index"` // legacy
+	Location *string `json:"location"`
+	Title    string  `json:"title"`
+	Category *string `json:"category"`
+
+	StartupID   *uint   `json:"-"`
+	StartupUUID *string `json:"startup_uuid"`
 }
 
 type NewsDetails struct {
