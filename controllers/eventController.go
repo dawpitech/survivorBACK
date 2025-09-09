@@ -113,7 +113,7 @@ func UpdateEvent(_ *gin.Context, in *routes.UpdateEventRequest) (*models.Event, 
 		if fieldValue.Kind() == reflect.Ptr && !fieldValue.IsNil() {
 			strVal, ok := fieldValue.Elem().Interface().(string)
 			if ok && strVal != "" {
-				updates[jsonTag] = fieldValue.String()
+				updates[jsonTag] = strVal
 				hasUpdate = true
 			}
 		}
