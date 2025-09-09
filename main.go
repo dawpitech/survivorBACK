@@ -357,6 +357,80 @@ func main() {
 		tonic.Handler(controllers.UpdateFounder, 200),
 	)
 
+	// Investors management routes
+	investorRoutes := globalRoutes.Group("/investors", "Investors access", "This group contains all investors endpoints")
+	investorRoutes.GET(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Get list of all investors"),
+		},
+		tonic.Handler(controllers.GetAllInvestors, 200),
+	)
+	investorRoutes.POST(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Create a new investor"),
+		},
+		tonic.Handler(controllers.CreateNewInvestor, 200),
+	)
+	investorRoutes.GET(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the investor with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Investor not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetInvestor, 200),
+	)
+	investorRoutes.DELETE(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Delete the investor with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Investor not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.DeleteInvestor, 200),
+	)
+	investorRoutes.PATCH(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Update the investor with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Investor not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.UpdateInvestor, 200),
+	)
+
 	fizzRouter.Generator().SetSecuritySchemes(map[string]*openapi.SecuritySchemeOrRef{
 		"bearerAuth": {
 			SecurityScheme: &openapi.SecurityScheme{

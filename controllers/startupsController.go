@@ -47,10 +47,6 @@ func CreateNewStartup(_ *gin.Context, in *routes.StartupCreationRequest) (*model
 		}
 	}
 
-	if startupFound.UUID != "" {
-		return nil, errors.NewAlreadyExists(nil, "Email already used")
-	}
-
 	currentDate := time.Now().Format("2006-01-02")
 	startup := models.StartupDetail{
 		StartupList: models.StartupList{
