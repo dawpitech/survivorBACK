@@ -148,20 +148,32 @@ func UpdateUser(_ *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUse
 			continue
 		}
 		fieldValue := val.Field(i)
-
-		if field.Name == "Password" && fieldValue.Kind() == reflect.String && fieldValue.String() != "" {
-			passwordHash, err := bcrypt.GenerateFromPassword([]byte(fieldValue.String()), bcrypt.DefaultCost)
-			if err != nil {
-				return nil, err
+		if fieldValue.Kind() == reflect.String && fieldValue.String() != "" {
+			if field.Name == "Password" {
+				passwordHash, err := bcrypt.GenerateFromPassword([]byte(fieldValue.String()), bcrypt.DefaultCost)
+				if err != nil {
+					return nil, err
+				}
+				updates[jsonTag] = string(passwordHash)
+			} else {
+				updates[jsonTag] = fieldValue.String()
 			}
 			hasUpdate = true
-			updates[jsonTag] = string(passwordHash)
-			continue
 		}
-
-		if fieldValue.Kind() == reflect.String && fieldValue.String() != "" {
-			hasUpdate = true
-			updates[jsonTag] = fieldValue.String()
+		if fieldValue.Kind() == reflect.Ptr && !fieldValue.IsNil() {
+			strVal, ok := fieldValue.Elem().Interface().(string)
+			if ok && strVal != "" {
+				if field.Name == "Password" {
+					passwordHash, err := bcrypt.GenerateFromPassword([]byte(fieldValue.String()), bcrypt.DefaultCost)
+					if err != nil {
+						return nil, err
+					}
+					updates[jsonTag] = string(passwordHash)
+				} else {
+					updates[jsonTag] = fieldValue.String()
+				}
+				hasUpdate = true
+			}
 		}
 	}
 

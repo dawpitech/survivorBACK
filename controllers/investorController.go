@@ -120,6 +120,13 @@ func UpdateInvestor(_ *gin.Context, in *routes.InvestorUpdateRequest) (*models.I
 			hasUpdate = true
 			updates[jsonTag] = fieldValue.String()
 		}
+		if fieldValue.Kind() == reflect.Ptr && !fieldValue.IsNil() {
+			strVal, ok := fieldValue.Elem().Interface().(string)
+			if ok && strVal != "" {
+				hasUpdate = true
+				updates[jsonTag] = strVal
+			}
+		}
 	}
 
 	if !hasUpdate {
