@@ -29,7 +29,13 @@ var tasks = []backgroundTasks{
 		Enable:     true,
 		Repetitive: true,
 		Handler:    UpdateUsersWithoutPP,
-		Delay:      time.Second * 30,
+		Delay:      time.Second * 10,
+	},
+	{
+		Enable:     true,
+		Repetitive: true,
+		Handler:    UpdateEventsWithoutP,
+		Delay:      time.Second * 10,
 	},
 }
 

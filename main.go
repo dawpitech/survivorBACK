@@ -431,6 +431,108 @@ func main() {
 		tonic.Handler(controllers.UpdateInvestor, 200),
 	)
 
+	// User management routes
+	eventsRoute := globalRoutes.Group("/events", "Events access", "This group contains all events endpoints")
+	eventsRoute.GET(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Get list of all events"),
+		},
+		tonic.Handler(controllers.GetAllEvents, 200),
+	)
+	eventsRoute.POST(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Register a new event"),
+			fizz.Response(
+				"400",
+				"Email already used",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.CreateNewEvent, 200),
+	)
+	eventsRoute.GET(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the event with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Event not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetEvent, 200),
+	)
+	eventsRoute.DELETE(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Delete the event with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Event not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.DeleteEvent, 200),
+	)
+	eventsRoute.PATCH(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Update the event with the corresponding UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Event not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.UpdateEvent, 200),
+	)
+	eventsRoute.GET(
+		"/:uuid/picture",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the event picture"),
+		},
+		tonic.Handler(controllers.GetEventPicture, 200),
+	)
+	eventsRoute.PUT(
+		"/:uuid/picture",
+		[]fizz.OperationOption{
+			fizz.Summary("Update the event picture"),
+			fizz.InputModel(routes.GenericUUIDFromPath{}),
+		},
+		tonic.Handler(controllers.UpdateEventPicture, 200),
+	)
+	eventsRoute.DELETE(
+		"/:uuid/picture",
+		[]fizz.OperationOption{
+			fizz.Summary("Reset the event picture"),
+		},
+		tonic.Handler(controllers.ResetEventPicture, 200),
+	)
+
 	fizzRouter.Generator().SetSecuritySchemes(map[string]*openapi.SecuritySchemeOrRef{
 		"bearerAuth": {
 			SecurityScheme: &openapi.SecurityScheme{

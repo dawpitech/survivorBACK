@@ -10,6 +10,30 @@ import (
 	"image/png"
 )
 
+func ResetEventPicture(event *models.Event) {
+	pp := identicon.GenerateIdenticonWithConfig(int(crc32.ChecksumIEEE([]byte(event.UUID))), identicon.Config{
+		Width:     512,
+		Height:    512,
+		GridSize:  8,
+		Grayscale: true,
+	})
+
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, pp); err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	eventPicture := models.EventPicture{
+		EventUUID: event.UUID,
+		Picture:   buf.Bytes(),
+	}
+	if err := initializers.DB.Save(&eventPicture); err.Error != nil {
+		fmt.Println(err.Error)
+		return
+	}
+}
+
 func ResetUserPicture(user *models.User) {
 	pp := identicon.GenerateIdenticonWithConfig(int(crc32.ChecksumIEEE([]byte(user.UUID))), identicon.Config{
 		Width:     512,
