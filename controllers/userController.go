@@ -92,7 +92,29 @@ func GetUserByFounderUUID(_ *gin.Context, in *routes.GetUserByFounderUUID) (*mod
 	return &userFoundPublic, nil
 }
 
-func CreateNewUser(_ *gin.Context, in *routes.UserCreationRequest) (*models.PublicUser, error) {
+func CreateNewUser(c *gin.Context, in *routes.UserCreationRequest) (*models.PublicUser, error) {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return nil, errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return nil, errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return nil, errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	var userFound models.User
 	if rst := initializers.DB.Where("email=?", in.Email).Find(&userFound); rst.Error != nil {
 		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
@@ -127,7 +149,29 @@ func CreateNewUser(_ *gin.Context, in *routes.UserCreationRequest) (*models.Publ
 	return &publicUser, nil
 }
 
-func DeleteUser(_ *gin.Context, in *routes.DeleteUserRequest) error {
+func DeleteUser(c *gin.Context, in *routes.DeleteUserRequest) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return errors.NewNotValid(nil, "Invalid UUID")
 	}
@@ -147,7 +191,29 @@ func DeleteUser(_ *gin.Context, in *routes.DeleteUserRequest) error {
 	return nil
 }
 
-func UpdateUser(_ *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUser, error) {
+func UpdateUser(c *gin.Context, in *routes.UpdateUserRequest) (*models.PublicUser, error) {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return nil, errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return nil, errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" && authUser.UUID != in.UUID {
+		return nil, errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return nil, errors.NewNotValid(nil, "Invalid UUID")
 	}
@@ -240,6 +306,29 @@ func GetUserPicture(c *gin.Context, in *routes.GetUserPictureRequest) error {
 
 func UpdateUserPicture(c *gin.Context) error {
 	userUUID := c.Param("uuid")
+
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" && authUser.UUID != userUUID {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	file, err := c.FormFile("picture")
 
 	if userUUID == "" {
@@ -282,7 +371,29 @@ func UpdateUserPicture(c *gin.Context) error {
 	return nil
 }
 
-func ResetUserPicture(_ *gin.Context, in *routes.ResetUserPictureRequest) error {
+func ResetUserPicture(c *gin.Context, in *routes.ResetUserPictureRequest) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" && authUser.UUID != in.UUID {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return errors.NewNotValid(nil, "Invalid UUID")
 	}

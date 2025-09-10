@@ -67,7 +67,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.CreateNewUser, 200),
 	)
 	usersRoutes.GET(
@@ -141,7 +146,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.DeleteUser, 200),
 	)
 	usersRoutes.PATCH(
@@ -160,7 +170,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or user on itself"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UpdateUser, 200),
 	)
 	usersRoutes.GET(
@@ -175,14 +190,24 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		[]fizz.OperationOption{
 			fizz.Summary("Update the user's profile picture"),
 			fizz.InputModel(routes.GenericUUIDFromPath{}),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or user on itself"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UpdateUserPicture, 200),
 	)
 	usersRoutes.DELETE(
 		"/:uuid/picture",
 		[]fizz.OperationOption{
 			fizz.Summary("Reset the user's profile picture"),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or user on itself"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.ResetUserPicture, 200),
 	)
 
