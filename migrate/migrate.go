@@ -26,6 +26,8 @@ func main() {
 		&models.NewsPicture{},
 		&models.Event{},
 		&models.EventPicture{},
+		&models.ChatRoom{},
+		&models.ChatMessage{},
 	)
 	if err != nil {
 		fmt.Println(err.Error())
