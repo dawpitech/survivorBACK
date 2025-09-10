@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func syncNewsUUID(news *models.News) {
+func syncNewsUUID(news *models.NewsDetails) {
 	if news.StartupUUID != nil {
 		return
 	}
@@ -57,7 +57,7 @@ func syncFounderUUIDs(user *models.User) {
 
 func SyncUUIDs() {
 	var users []models.User
-	var news []models.News
+	var news []models.NewsDetails
 
 	if result := initializers.DB.Find(&users); result.Error != nil {
 		fmt.Printf("Couldn't fetch users from db to run UUID Sync Task!\n%s\n", result.Error.Error())
