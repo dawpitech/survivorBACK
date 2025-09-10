@@ -190,10 +190,7 @@ func UploadStartupFile(c *gin.Context) error {
 	}
 	filePath := filepath.Join(uploadDir, startupUUID)
 
-	err = os.Remove(filePath)
-	if err != nil {
-		return err
-	}
+	_ = os.Remove(filePath)
 
 	if err := c.SaveUploadedFile(file, filePath); err != nil {
 		return errors.New("Internal server error")
