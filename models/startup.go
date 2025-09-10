@@ -22,4 +22,5 @@ type StartupDetail struct {
 	ProjectStatus  *string   `json:"project_status"`
 	Needs          *string   `json:"needs"`
 	Founders       []Founder `json:"founders,omitempty" gorm:"foreignKey:StartupUUID;references:UUID"`
+	ViewsCount     uint      `json:"views_count"`
 }

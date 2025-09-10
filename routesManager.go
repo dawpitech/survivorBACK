@@ -265,6 +265,25 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		},
 		tonic.Handler(controllers.UpdateStartup, 200),
 	)
+	startupRoutes.PATCH(
+		"/:uuid/upViewCount",
+		[]fizz.OperationOption{
+			fizz.Summary("Up the count of startup views (matching the given UUID) by one"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"Startup not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.AddViewToStartup, 200),
+	)
 
 	// Founders management routes
 	founderRoutes := globalRoutes.Group("/founders", "Founders", "This group contains all founders endpoints")

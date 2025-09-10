@@ -146,3 +146,30 @@ func UpdateStartup(_ *gin.Context, in *routes.UpdateStartupRequest) (*models.Sta
 
 	return &startupFound, nil
 }
+
+func AddViewToStartup(_ *gin.Context, in *routes.UpdateStartupRequest) (*models.StartupDetail, error) {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return nil, errors.NewNotValid(nil, "Invalid UUID")
+	}
+
+	var startupFound models.StartupDetail
+	if rst := initializers.DB.Where("uuid=?", in.UUID).Preload("Founders").First(&startupFound); rst.Error != nil {
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.NewUserNotFound(nil, "Startup not found")
+		} else {
+			return nil, errors.New("Internal server error")
+		}
+	}
+
+	if startupFound.UUID == "" {
+		return nil, errors.NewUserNotFound(nil, "Startup not found")
+	}
+
+	startupFound.ViewsCount += 1
+
+	if err := initializers.DB.Save(&startupFound).Error; err != nil {
+		return nil, errors.New("Internal server error")
+	}
+
+	return &startupFound, nil
+}
