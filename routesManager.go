@@ -655,6 +655,61 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		tonic.Handler(controllers.ResetNewsPicture, 200),
 	)
 
+	// Chat management routes
+	chatRoute := globalRoutes.Group("/rooms", "Messages", "This group contains all messages endpoints")
+	chatRoute.GET(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Get all chat rooms"),
+			fizz.Response(
+				"400",
+				"Room already existing",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetAllChatRooms, 200),
+	)
+	chatRoute.POST(
+		"/",
+		[]fizz.OperationOption{
+			fizz.Summary("Create a new chat room with the two user based on their user UUID"),
+			fizz.Response(
+				"400",
+				"No room with the given UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.CreateChatRoom, 200),
+	)
+	chatRoute.GET(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Get all message in the correspond room based on the UUID"),
+			fizz.Response(
+				"400",
+				"No room with the given UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetRoomMessages, 200),
+	)
+	chatRoute.PUT(
+		"/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Create a new message in the correspond room based on the UUID"),
+			fizz.Response(
+				"400",
+				"No room with the given UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.SendMessageInChatRoom, 200),
+	)
+
 	fizzRouter.Generator().SetSecuritySchemes(map[string]*openapi.SecuritySchemeOrRef{
 		"bearerAuth": {
 			SecurityScheme: &openapi.SecurityScheme{
