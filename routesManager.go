@@ -284,6 +284,30 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		},
 		tonic.Handler(controllers.AddViewToStartup, 200),
 	)
+	startupRoutes.GET(
+		"/:uuid/file",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the pitch deck of the startup with the given UUID"),
+			fizz.Response("404",
+				"File not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetStartupFile, 200),
+	)
+	startupRoutes.PUT(
+		"/:uuid/file",
+		[]fizz.OperationOption{
+			fizz.Summary("Upload the pitch deck of the startup with the given UUID"),
+			fizz.Response("400",
+				"Bad request",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.UploadStartupFile, 200),
+	)
 
 	// Founders management routes
 	founderRoutes := globalRoutes.Group("/founders", "Founders", "This group contains all founders endpoints")

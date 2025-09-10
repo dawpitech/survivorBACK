@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/juju/errors"
 	"gorm.io/gorm"
+	"os"
+	"path/filepath"
 	"reflect"
 	"time"
 )
@@ -172,4 +174,40 @@ func AddViewToStartup(_ *gin.Context, in *routes.UpdateStartupRequest) (*models.
 	}
 
 	return &startupFound, nil
+}
+
+func UploadStartupFile(c *gin.Context) error {
+	startupUUID := c.Param("uuid")
+	file, err := c.FormFile("file")
+	if err != nil {
+		return errors.NewBadRequest(err, "No file given")
+	}
+
+	uploadDir := "./startup_files"
+	err = os.MkdirAll(uploadDir, os.ModePerm)
+	if err != nil {
+		return errors.New("Internal server error")
+	}
+	filePath := filepath.Join(uploadDir, startupUUID)
+
+	err = os.Remove(filePath)
+	if err != nil {
+		return err
+	}
+
+	if err := c.SaveUploadedFile(file, filePath); err != nil {
+		return errors.New("Internal server error")
+	}
+
+	return nil
+}
+
+func GetStartupFile(c *gin.Context) error {
+	startupUUID := c.Param("uuid")
+	filePath := filepath.Join("./startup_files", startupUUID)
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return errors.NewNotFound(nil, "File not found")
+	}
+	c.File(filePath)
+	return nil
 }
