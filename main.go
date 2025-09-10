@@ -9,6 +9,7 @@ import (
 	"github.com/loopfz/gadgeto/tonic"
 	"github.com/loopfz/gadgeto/tonic/utils/jujerr"
 	"github.com/wI2L/fizz"
+	"github.com/zsais/go-gin-prometheus"
 	"time"
 )
 
@@ -39,6 +40,9 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	p := ginprometheus.NewWithConfig(ginprometheus.Config{Subsystem: "gin"})
+	p.Use(router)
 
 	tonic.SetErrorHook(jujerr.ErrHook)
 	fizzRouter := fizz.NewFromEngine(router)
