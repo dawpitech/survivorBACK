@@ -63,6 +63,31 @@ func GetUser(_ *gin.Context, in *routes.GetUserRequest) (*models.PublicUser, err
 		}
 	}
 
+	if user.UUID == "" {
+		return nil, errors.NewUserNotFound(nil, "User not found")
+	}
+
+	userFoundPublic := user.GetPublicUser()
+	return &userFoundPublic, nil
+}
+func GetUserByFounderUUID(_ *gin.Context, in *routes.GetUserByFounderUUID) (*models.PublicUser, error) {
+	if _, err := uuid.Parse(in.UUID); err != nil {
+		return nil, errors.NewNotValid(nil, "Invalid UUID")
+	}
+
+	var user models.User
+	if rst := initializers.DB.Where("founder_uuid=?", in.UUID).Find(&user); rst.Error != nil {
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.NewUserNotFound(nil, "User not found")
+		} else {
+			return nil, errors.New("Internal server error")
+		}
+	}
+
+	if user.UUID == "" {
+		return nil, errors.NewUserNotFound(nil, "User not found")
+	}
+
 	userFoundPublic := user.GetPublicUser()
 	return &userFoundPublic, nil
 }

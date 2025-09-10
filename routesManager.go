@@ -106,6 +106,25 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		},
 		tonic.Handler(controllers.GetUser, 200),
 	)
+	usersRoutes.GET(
+		"founderUUID/:uuid",
+		[]fizz.OperationOption{
+			fizz.Summary("Get the user with the corresponding Founder UUID"),
+			fizz.Response(
+				"400",
+				"Invalid UUID",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+			fizz.Response(
+				"404",
+				"User not found",
+				routes.ErrorOutput{},
+				nil,
+				nil),
+		},
+		tonic.Handler(controllers.GetUserByFounderUUID, 200),
+	)
 	usersRoutes.DELETE(
 		"/:uuid",
 		[]fizz.OperationOption{
