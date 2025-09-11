@@ -39,7 +39,29 @@ func GetStartup(_ *gin.Context, in *routes.GetStartupRequest) (*models.StartupDe
 	return &startup, nil
 }
 
-func CreateNewStartup(_ *gin.Context, in *routes.StartupCreationRequest) (*models.StartupDetail, error) {
+func CreateNewStartup(c *gin.Context, in *routes.StartupCreationRequest) (*models.StartupDetail, error) {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return nil, errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return nil, errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return nil, errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	var startupFound models.StartupDetail
 	if rst := initializers.DB.Where("email=?", in.Email).Find(&startupFound); rst.Error == nil {
 		return nil, errors.NewAlreadyExists(nil, "Email already used")
@@ -78,7 +100,29 @@ func CreateNewStartup(_ *gin.Context, in *routes.StartupCreationRequest) (*model
 	return &startup, nil
 }
 
-func DeleteStartup(_ *gin.Context, in *routes.DeleteStartupRequest) error {
+func DeleteStartup(c *gin.Context, in *routes.DeleteStartupRequest) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return errors.NewNotValid(nil, "Invalid UUID")
 	}
@@ -98,7 +142,7 @@ func DeleteStartup(_ *gin.Context, in *routes.DeleteStartupRequest) error {
 	return nil
 }
 
-func UpdateStartup(_ *gin.Context, in *routes.UpdateStartupRequest) (*models.StartupDetail, error) {
+func UpdateStartup(c *gin.Context, in *routes.UpdateStartupRequest) (*models.StartupDetail, error) {
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return nil, errors.NewNotValid(nil, "Invalid UUID")
 	}
@@ -111,6 +155,39 @@ func UpdateStartup(_ *gin.Context, in *routes.UpdateStartupRequest) (*models.Sta
 			return nil, errors.New("Internal server error")
 		}
 	}
+
+	if startupFound.UUID == "" {
+		return nil, errors.NewUserNotFound(nil, "Startup not found")
+	}
+
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return nil, errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return nil, errors.New("Internal server error")
+	}
+
+	isFounder := false
+	for _, f := range startupFound.Founders {
+		if authUser.UUID == f.UUID {
+			isFounder = true
+			break
+		}
+	}
+	if authUser.Role != "admin" && !isFounder {
+		return nil, errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
 
 	updates := make(map[string]interface{})
 
@@ -182,6 +259,51 @@ func UploadStartupFile(c *gin.Context) error {
 	if err != nil {
 		return errors.NewBadRequest(err, "No file given")
 	}
+
+	if _, err := uuid.Parse(startupUUID); err != nil {
+		return errors.NewNotValid(nil, "Invalid UUID")
+	}
+	var startupFound models.StartupDetail
+	if rst := initializers.DB.Where("uuid=?", startupUUID).Preload("Founders").First(&startupFound); rst.Error != nil {
+		if errors.Is(rst.Error, gorm.ErrRecordNotFound) {
+			return errors.NewUserNotFound(nil, "Startup not found")
+		} else {
+			return errors.New("Internal server error")
+		}
+	}
+
+	if startupFound.UUID == "" {
+		return errors.NewUserNotFound(nil, "Startup not found")
+	}
+
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	isFounder := false
+	for _, f := range startupFound.Founders {
+		if authUser.UUID == f.UUID {
+			isFounder = true
+			break
+		}
+	}
+	if authUser.Role != "admin" && !isFounder {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
 
 	uploadDir := "./startup_files"
 	err = os.MkdirAll(uploadDir, os.ModePerm)

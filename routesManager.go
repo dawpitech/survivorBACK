@@ -230,6 +230,10 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
 		tonic.Handler(controllers.CreateNewStartup, 200),
 	)
@@ -268,6 +272,10 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
 		tonic.Handler(controllers.DeleteStartup, 200),
 	)
@@ -287,6 +295,10 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or founders of the startup"),
 		},
 		tonic.Handler(controllers.UpdateStartup, 200),
 	)
@@ -330,6 +342,10 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or founders of the startup"),
 		},
 		tonic.Handler(controllers.UploadStartupFile, 200),
 	)
