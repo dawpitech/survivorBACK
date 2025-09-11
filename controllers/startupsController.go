@@ -179,7 +179,7 @@ func UpdateStartup(c *gin.Context, in *routes.UpdateStartupRequest) (*models.Sta
 
 	isFounder := false
 	for _, f := range startupFound.Founders {
-		if authUser.UUID == f.UUID {
+		if *authUser.FounderUUID == f.UUID {
 			isFounder = true
 			break
 		}
@@ -295,7 +295,7 @@ func UploadStartupFile(c *gin.Context) error {
 
 	isFounder := false
 	for _, f := range startupFound.Founders {
-		if authUser.UUID == f.UUID {
+		if *authUser.FounderUUID == f.UUID {
 			isFounder = true
 			break
 		}
