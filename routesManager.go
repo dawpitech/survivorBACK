@@ -613,6 +613,10 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		"/",
 		[]fizz.OperationOption{
 			fizz.Summary("Register a new news"),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or founders"),
 		},
 		tonic.Handler(controllers.CreateNewNews, 200),
 	)
@@ -651,6 +655,10 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
 		tonic.Handler(controllers.DeleteNews, 200),
 	)
@@ -670,6 +678,10 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or founders"),
 		},
 		tonic.Handler(controllers.UpdateNews, 200),
 	)
@@ -685,6 +697,10 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		[]fizz.OperationOption{
 			fizz.Summary("Update the news picture"),
 			fizz.InputModel(routes.GenericUUIDFromPath{}),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or founders"),
 		},
 		tonic.Handler(controllers.UpdateNewsPicture, 200),
 	)
@@ -692,6 +708,10 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		"/:uuid/picture",
 		[]fizz.OperationOption{
 			fizz.Summary("Reset the news picture"),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
 		tonic.Handler(controllers.ResetNewsPicture, 200),
 	)

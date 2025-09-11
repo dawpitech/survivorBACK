@@ -40,7 +40,29 @@ func GetNews(_ *gin.Context, in *routes.GetNewsRequest) (*models.NewsDetails, er
 	return &news, nil
 }
 
-func CreateNewNews(_ *gin.Context, in *routes.NewsCreationRequest) (*models.NewsDetails, error) {
+func CreateNewNews(c *gin.Context, in *routes.NewsCreationRequest) (*models.NewsDetails, error) {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return nil, errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return nil, errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" && authUser.Role != "founder" {
+		return nil, errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	news := models.NewsDetails{
 		News: models.News{
 			UUID:        uuid.New().String(),
@@ -62,7 +84,29 @@ func CreateNewNews(_ *gin.Context, in *routes.NewsCreationRequest) (*models.News
 	return &news, nil
 }
 
-func DeleteNews(_ *gin.Context, in *routes.DeleteNewsRequest) error {
+func DeleteNews(c *gin.Context, in *routes.DeleteNewsRequest) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return errors.NewNotValid(nil, "Invalid UUID")
 	}
@@ -82,7 +126,29 @@ func DeleteNews(_ *gin.Context, in *routes.DeleteNewsRequest) error {
 	return nil
 }
 
-func UpdateNews(_ *gin.Context, in *routes.NewsUpdateRequest) (*models.NewsDetails, error) {
+func UpdateNews(c *gin.Context, in *routes.NewsUpdateRequest) (*models.NewsDetails, error) {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return nil, errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return nil, errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" && authUser.Role != "founder" {
+		return nil, errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return nil, errors.NewNotValid(nil, "Invalid UUID")
 	}
@@ -157,6 +223,28 @@ func GetNewsPicture(c *gin.Context, in *routes.GetNewsPictureRequest) error {
 }
 
 func UpdateNewsPicture(c *gin.Context) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" && authUser.Role != "founder" {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	userUUID := c.Param("uuid")
 	file, err := c.FormFile("picture")
 
@@ -200,7 +288,29 @@ func UpdateNewsPicture(c *gin.Context) error {
 	return nil
 }
 
-func ResetNewsPicture(_ *gin.Context, in *routes.ResetNewsPictureRequest) error {
+func ResetNewsPicture(c *gin.Context, in *routes.ResetNewsPictureRequest) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return errors.NewNotValid(nil, "Invalid UUID")
 	}
