@@ -53,6 +53,7 @@ func postEvent(eventsLegacy []legacy.EventLegacy) []models.Event {
 			UUID:           uuid.New().String(),
 			ID:             &eventLegacy.ID,
 			Name:           eventLegacy.Name,
+			Date:           eventLegacy.Date,
 			Location:       eventLegacy.Location,
 			Description:    eventLegacy.Description,
 			EventType:      eventLegacy.EventType,
