@@ -235,6 +235,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			}),
 			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.CreateNewStartup, 200),
 	)
 	startupRoutes.GET(
@@ -277,6 +278,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			}),
 			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.DeleteStartup, 200),
 	)
 	startupRoutes.PATCH(
@@ -300,6 +302,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			}),
 			fizz.Description("Operation restricted to admins or founders of the startup"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UpdateStartup, 200),
 	)
 	startupRoutes.PATCH(
@@ -347,6 +350,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			}),
 			fizz.Description("Operation restricted to admins or founders of the startup"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UploadStartupFile, 200),
 	)
 
@@ -618,6 +622,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			}),
 			fizz.Description("Operation restricted to admins or founders"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.CreateNewNews, 200),
 	)
 	newsRoute.GET(
@@ -660,6 +665,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			}),
 			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.DeleteNews, 200),
 	)
 	newsRoute.PATCH(
@@ -683,6 +689,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			}),
 			fizz.Description("Operation restricted to admins or founders"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UpdateNews, 200),
 	)
 	newsRoute.GET(
@@ -702,6 +709,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			}),
 			fizz.Description("Operation restricted to admins or founders"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UpdateNewsPicture, 200),
 	)
 	newsRoute.DELETE(
@@ -713,6 +721,7 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 			}),
 			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.ResetNewsPicture, 200),
 	)
 
