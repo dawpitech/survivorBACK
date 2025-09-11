@@ -40,7 +40,29 @@ func GetEvent(_ *gin.Context, in *routes.GetEventRequest) (*models.Event, error)
 	return &event, nil
 }
 
-func CreateNewEvent(_ *gin.Context, in *routes.EventCreationRequest) (*models.Event, error) {
+func CreateNewEvent(c *gin.Context, in *routes.EventCreationRequest) (*models.Event, error) {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return nil, errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return nil, errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return nil, errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	event := models.Event{
 		UUID:           uuid.New().String(),
 		ID:             nil,
@@ -60,7 +82,29 @@ func CreateNewEvent(_ *gin.Context, in *routes.EventCreationRequest) (*models.Ev
 	return &event, nil
 }
 
-func DeleteEvent(_ *gin.Context, in *routes.DeleteUserRequest) error {
+func DeleteEvent(c *gin.Context, in *routes.DeleteUserRequest) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return errors.NewNotValid(nil, "Invalid UUID")
 	}
@@ -80,7 +124,29 @@ func DeleteEvent(_ *gin.Context, in *routes.DeleteUserRequest) error {
 	return nil
 }
 
-func UpdateEvent(_ *gin.Context, in *routes.UpdateEventRequest) (*models.Event, error) {
+func UpdateEvent(c *gin.Context, in *routes.UpdateEventRequest) (*models.Event, error) {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return nil, errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return nil, errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return nil, errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return nil, errors.NewNotValid(nil, "Invalid UUID")
 	}
@@ -155,6 +221,28 @@ func GetEventPicture(c *gin.Context, in *routes.GetEventPictureRequest) error {
 }
 
 func UpdateEventPicture(c *gin.Context) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	userUUID := c.Param("uuid")
 	file, err := c.FormFile("picture")
 
@@ -198,7 +286,29 @@ func UpdateEventPicture(c *gin.Context) error {
 	return nil
 }
 
-func ResetEventPicture(_ *gin.Context, in *routes.ResetEventPictureRequest) error {
+func ResetEventPicture(c *gin.Context, in *routes.ResetEventPictureRequest) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return errors.NewNotValid(nil, "Invalid UUID")
 	}

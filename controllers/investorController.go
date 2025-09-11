@@ -37,7 +37,29 @@ func GetInvestor(_ *gin.Context, in *routes.GetInvestorRequest) (*models.Investo
 	return &investor, nil
 }
 
-func CreateNewInvestor(_ *gin.Context, in *routes.InvestorCreationRequest) (*models.Investor, error) {
+func CreateNewInvestor(c *gin.Context, in *routes.InvestorCreationRequest) (*models.Investor, error) {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return nil, errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return nil, errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" {
+		return nil, errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	var investorFound models.Investor
 	if rst := initializers.DB.Where("email=?", in.Email).Find(&investorFound); rst.Error == nil {
 		return nil, errors.NewAlreadyExists(nil, "Email already used")
@@ -69,7 +91,29 @@ func CreateNewInvestor(_ *gin.Context, in *routes.InvestorCreationRequest) (*mod
 	return &investor, nil
 }
 
-func DeleteInvestor(_ *gin.Context, in *routes.DeleteInvestorRequest) error {
+func DeleteInvestor(c *gin.Context, in *routes.DeleteInvestorRequest) error {
+	// START AUTH CHECK SECTION
+	userInterface, exist := c.Get("currentUser")
+
+	if !exist {
+		return errors.New("Internal server error")
+	}
+
+	var authUser models.User
+	switch u := userInterface.(type) {
+	case models.User:
+		authUser = u
+	case *models.User:
+		authUser = *u
+	default:
+		return errors.New("Internal server error")
+	}
+
+	if authUser.Role != "admin" && authUser.UUID != in.UUID {
+		return errors.NewForbidden(nil, "Access Forbidden")
+	}
+	// END AUTH CHECK SECTION
+
 	if _, err := uuid.Parse(in.UUID); err != nil {
 		return errors.NewNotValid(nil, "Invalid UUID")
 	}

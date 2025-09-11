@@ -367,7 +367,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		"/",
 		[]fizz.OperationOption{
 			fizz.Summary("Create a new founder"),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.CreateNewFounder, 200),
 	)
 	founderRoutes.GET(
@@ -405,7 +410,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.DeleteFounder, 200),
 	)
 	founderRoutes.PATCH(
@@ -424,7 +434,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or the founder on himself"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UpdateFounder, 200),
 	)
 
@@ -441,7 +456,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		"/",
 		[]fizz.OperationOption{
 			fizz.Summary("Create a new investor"),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.CreateNewInvestor, 200),
 	)
 	investorRoutes.GET(
@@ -479,7 +499,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.DeleteInvestor, 200),
 	)
 	investorRoutes.PATCH(
@@ -498,7 +523,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or investor on himself"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UpdateInvestor, 200),
 	)
 
@@ -521,7 +551,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.CreateNewEvent, 200),
 	)
 	eventsRoute.GET(
@@ -559,7 +594,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.DeleteEvent, 200),
 	)
 	eventsRoute.PATCH(
@@ -578,7 +618,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UpdateEvent, 200),
 	)
 	eventsRoute.GET(
@@ -593,14 +638,24 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 		[]fizz.OperationOption{
 			fizz.Summary("Update the event picture"),
 			fizz.InputModel(routes.GenericUUIDFromPath{}),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.UpdateEventPicture, 200),
 	)
 	eventsRoute.DELETE(
 		"/:uuid/picture",
 		[]fizz.OperationOption{
 			fizz.Summary("Reset the event picture"),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.ResetEventPicture, 200),
 	)
 
