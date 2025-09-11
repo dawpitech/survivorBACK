@@ -750,7 +750,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or users included in the request"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.CreateChatRoom, 200),
 	)
 	chatRoute.GET(
@@ -763,7 +768,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or users included in the chat room"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.GetRoomMessages, 200),
 	)
 	chatRoute.PUT(
@@ -776,7 +786,12 @@ func registerRoutes(fizzRouter *fizz.Fizz) {
 				routes.ErrorOutput{},
 				nil,
 				nil),
+			fizz.Security(&openapi.SecurityRequirement{
+				"bearerAuth": []string{},
+			}),
+			fizz.Description("Operation restricted to admins or users included in the chat room"),
 		},
+		middlewares.CheckAuth,
 		tonic.Handler(controllers.SendMessageInChatRoom, 200),
 	)
 
